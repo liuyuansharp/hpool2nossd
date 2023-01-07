@@ -50,7 +50,7 @@ class Hpool2Nossd():
                 return
 
     @staticmethod
-    def stop_hpoolpp_service():
+    def stop_hpool_service():
         p = subprocess.Popen("service hpoolpp stop",
                              shell=True,
                              stdout=subprocess.PIPE,
@@ -65,7 +65,7 @@ class Hpool2Nossd():
         return False
 
     @staticmethod
-    def start_hpoolpp_service():
+    def start_hpool_service():
         p = subprocess.Popen("service hpoolpp start",
                              shell=True,
                              stdout=subprocess.PIPE,
