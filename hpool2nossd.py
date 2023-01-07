@@ -11,12 +11,9 @@ class Hpool2Nossd():
         self.delete_plot_per_time = 1
 
         self.drive_root_path = Path("/srv/")
-
-        #磁盘标识和最小总空间依次判断是否有效磁盘
         self.drive_character = "disk"
-        self.drive_min_capacity = 2000
 
-        self.hpool_plots_dir_name = "chiapp-files"
+        self.plots_dir_name = "chiapp-files"
         self.nossd_fpt_dir_name = "nossd"
 
         self.nossd_client_path = "/root/install/nossd-1.2/"
@@ -29,7 +26,7 @@ class Hpool2Nossd():
         self.ready_drives = {}
 
     @staticmethod
-    def delete_hpool_plots(hard, n):
+    def delete_plots(hard, n):
         count = 1
         file = os.listdir(hard)
 
@@ -129,18 +126,26 @@ class Hpool2Nossd():
         return False
 
     def get_drive_info(self,drive_path:Path):
+        drive_info = {}
+
         gb = 1024 ** 3  # GB == gigabyte
         total_b, used_b, free_b = shutil.disk_usage(drive_path)
 
+        drive_info["disk"] = [int(total_b/gb), int(used_b/gb), int(free_b/gb)]
         nossd_path = drive_path / self.nossd_fpt_dir_name
+        fpts_n,spts_n = 0
         if nossd_path.exists():
-            pass
+          fpts_n = self.get_type_file_number(hpool_path,".fpt")
+          spts_n = self.get_type_file_number(hpool_path,".spt")
+        drive_info["nossd"] = [nossd_path,fpts_n,spts_n]
 
-        hpool_path = drive_path / self.hpool_plots_dir_name
+        hpool_path = drive_path / self.plots_dir_name
+        plots_n = 0
         if hpool_path.exists():
-          plots_n = self.get_hpool_plots_info()
-          
-        return [int(total_b/gb), int(used_b/gb), int(free_b/gb),nossd_path,hpool_path]
+          plots_n = self.get_type_file_number(hpool_path,".plot")
+        drive_info["hpool"] = [hpool_path,plots_n]
+        
+        return drive_info
 
     def get_all_dirves(self):
         dirs = os.listdir(self.drive_root_path)
@@ -151,38 +156,34 @@ class Hpool2Nossd():
           
           if self.drive_character in drive_dir:
             self.all_dirves[drive_dir_path]= drive_info
-          elif drive_info[0] >= self.drive_min_capacity:
-            self.all_dirves[drive_dir_path]= drive_info
-          else:
-            pass
 
         return self.all_dirves
 
-    def check_hpool_plots_exists(self,drive_dir_path):
+    def check_plots_exists(self,drive_dir_path):
         dirs = os.listdir(drive_dir_path)
 
-        if self.hpool_plots_dir_name in dirs:
+        if self.plots_dir_name in dirs:
             return True
 
         return False
 
-    def check_hpool_plots(self,dir_name):
-        if self.hpool_plots_dir_name == dir_name:
+    def check_plots(self,dir_name):
+        if self.plots_dir_name == dir_name:
           return True
 
         return False
 
     @staticmethod
-    def get_hpool_plots_info(dir):
+    def get_type_file_number(dir,type):
         files = os.listdir(dir)
         no = 0
         for file in files:
-          if ".plot" in file:
+          if type in file:
             no += 1
 
         return no
 
-    def check_hpool_plots_full(self,drive,value):
+    def check_plots_full(self,drive,value):
         drive_dir_path = drive
         total_gb = value[0]
         used_gb = value[1]
@@ -191,25 +192,25 @@ class Hpool2Nossd():
         dirs = os.listdir(drive_dir_path)
 
         for dir in dirs:
-          if self.check_hpool_plots(dir):
+          if self.check_plots(dir):
             dir_path = drive_dir_path / dir
-            if self.get_hpool_plots_info(dir_path) and free_gb < 100:
+            if self.get_type_file_number(dir_path) and free_gb < 100:
                 return True
 
         return False
 
-    def check_hpool_plots_empty(self,drive,value):
+    def check_plots_empty(self,drive,value):
         drive_dir_path = drive
         total_gb = value[0]
         used_gb = value[1]
         free_gb = value[2]
 
-        if not self.check_hpool_plots_exists(drive_dir_path):
+        if not self.check_plots_exists(drive_dir_path):
           return True
 
         dirs = os.listdir(drive_dir_path)
         for dir in dirs:
-          if self.check_hpool_plots(dir):
+          if self.check_plots(dir):
             dir_path = drive_dir_path / dir
             files = os.listdir(dir_path)
             if not files:
@@ -243,18 +244,21 @@ class Hpool2Nossd():
 
         return True
 
-    def check_nossd_full(self,drive,value):
-        drive_dir_path = drive
-        total_gb = value[0]
-        used_gb = value[1]
-        free_gb = value[2]
+    def check_nossd_full(self,drive_info):
+        drive_dir_path = drive_info["nossd"][0]
+        fpts_n = drive_info["nossd"][1]
+        spts_n = drive_info["nossd"][2]
+
+        total_gb = drive_info["disk"][0]
+        used_gb = drive_info["disk"][1]
+        free_gb = drive_info["disk"][2]
 
         dirs = os.listdir(drive_dir_path)
 
         for dir in dirs:
           if self.check_nossd(dir):
             dir_path = drive_dir_path / dir
-            if self.check_nossd_no_spt_file(dir_path) and free_gb < 80:
+            if fpts_n and free_gb < 80:
                 return True
 
         return False
@@ -282,15 +286,15 @@ class Hpool2Nossd():
     def get_drives_status(self):
 
         for drive in self.all_dirves:
-          value = self.all_dirves[drive]
-          if self.check_nossd_full(drive,value) and self.check_hpool_plots_empty(drive,value):
-            self.complete_drives[drive] = value
+          drive_info = self.all_dirves[drive]
+          if self.check_nossd_full(drive_info) and self.check_plots_empty(drive_info):
+            self.complete_drives[drive] = drive_info
 
-          if self.check_nossd_empty(drive,value):
-            self.ready_drives[drive] = value
+          if self.check_nossd_empty(drive_info):
+            self.ready_drives[drive] = drive_info
 
-          if not self.check_nossd_empty(drive,value) and not self.check_nossd_full(drive,value):
-            self.converting_drives[drive] = value
+          if not self.check_nossd_empty(drive_info) and not self.check_nossd_full(drive_info):
+            self.converting_drives[drive] = drive_info
 
         converting_drives_num = len(self.converting_drives)
         if converting_drives_num != self.parallel_nossd_num:
