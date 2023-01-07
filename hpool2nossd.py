@@ -128,12 +128,19 @@ class Hpool2Nossd():
 
         return False
 
-    @staticmethod
-    def get_drive_info(drive_path):
+    def get_drive_info(self,drive_path:Path):
         gb = 1024 ** 3  # GB == gigabyte
         total_b, used_b, free_b = shutil.disk_usage(drive_path)
 
-        return [int(total_b/gb), int(used_b/gb), int(free_b/gb)]
+        nossd_path = drive_path / self.nossd_fpt_dir_name
+        if nossd_path.exists():
+            pass
+
+        hpool_path = drive_path / self.hpool_plots_dir_name
+        if hpool_path.exists():
+          plots_n = self.get_hpool_plots_info()
+          
+        return [int(total_b/gb), int(used_b/gb), int(free_b/gb),nossd_path,hpool_path]
 
     def get_all_dirves(self):
         dirs = os.listdir(self.drive_root_path)
@@ -166,13 +173,14 @@ class Hpool2Nossd():
         return False
 
     @staticmethod
-    def check_hpool_plots_all_plot_file(dir):
+    def get_hpool_plots_info(dir):
         files = os.listdir(dir)
+        no = 0
         for file in files:
-          if "plot" not in file:
-            return False
+          if ".plot" in file:
+            no += 1
 
-        return True
+        return no
 
     def check_hpool_plots_full(self,drive,value):
         drive_dir_path = drive
@@ -185,7 +193,7 @@ class Hpool2Nossd():
         for dir in dirs:
           if self.check_hpool_plots(dir):
             dir_path = drive_dir_path / dir
-            if self.check_hpool_plots_all_plot_file(dir_path) and free_gb < 100:
+            if self.get_hpool_plots_info(dir_path) and free_gb < 100:
                 return True
 
         return False
