@@ -1,9 +1,9 @@
 import os
 import subprocess
 import shutil
+
 from pathlib import Path
 from typing import Dict
-
 
 class DriveInfo():
     def __init__(self) -> None:
@@ -28,6 +28,7 @@ class Hpool2Nossd():
     def __init__(self) -> None:
 
         self.parallel_nossd_num = 3
+        self.harvester_drives_num = 32
         self.delete_plot_per_time = 1
         self.min_free_space = 80  # gb
 
@@ -338,6 +339,13 @@ class Hpool2Nossd():
         if task_drives_num != self.parallel_nossd_num:
             print("error task drives number: {} : {}".format(
                 task_drives_num, self.parallel_nossd_num))
+            exit(1)
+
+        total_drives_number = len(self.ready_drives) + len(self.plotting_drives) + len(
+            self.standby_drives) + len(self.finished_drives) + len(self.completed_drives)
+        if total_drives_number != self.harvester_drives_num:
+            print("error total drives number: {} : {}".format(
+                total_drives_number, self.harvester_drives_num))
             exit(1)
 
         common = self.ready_drives.keys() & self.plotting_drives.keys(
