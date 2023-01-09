@@ -1,6 +1,7 @@
 import os
 import subprocess
 import shutil
+import stat
 
 from pathlib import Path
 from typing import Dict
@@ -11,13 +12,14 @@ class DriveInfo():
         self.drive_path: Path = Path()
 
         self.nossd_path: Path = Path()
-        self.nossd_tmp_path: Path = Path()
+        self.tmp_drive_flag = False
         self.fpts_n = 0
         self.spts_n = 0
-        
-        self.plottting_fpts_n = 0
-        self.plotting_spts_n = 0
-        
+
+        self.target_use_space = 0
+        self.target_fpts_n = 0
+        self.target_spts_n = 0
+
         self.plots_path: Path = Path()
         self.plots_n = 0
 
@@ -31,15 +33,15 @@ class DriveInfo():
 
 class Hpool2Nossd():
     def __init__(self) -> None:
-        
-        self.priority_type = "fpt" # or "spt"
+
+        self.fpt_priority = True
         self.parallel_nossd_num = 3
         self.delete_plot_per_time = 1
-        
+
         self.total_tmp_space = 225
         self.min_free_space = 80  # gb
-        self.spt_space = 89  # gb
-        self.fpt_space = 79  # gb
+        self.spt_space = 88.1  # gb
+        self.fpt_space = 78.1  # gb
 
         self.drive_root_path = Path("/srv/")
         self.drive_character = "disk"
@@ -50,17 +52,22 @@ class Hpool2Nossd():
         self.nossd_client_path = Path("/root/install/nossd-1.2/")
         self.nossd_client_client = self.nossd_client_path / "client"
         self.nossd_client_start_sh = self.nossd_client_path / "start_dev.sh"
-        self.nossd_tmp_file = "NoSSDChiaPool.tmp"
-        self.nossd_status = ""
-        
+        self.tmp_drive_paths = ["/srv/dev-disk-by-uuid-9802c526-c5e2-44a4-9e29-b7e1b7b805a0",
+                               "/srv/dev-disk-by-uuid-ffeb0e19-8f2a-453a-abec-9aa7884c1124",
+                               "/srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01"]
+        self.nossd_client_address = "xch1m49h6ny95xgs5a3p2wg6ghnr3vejsqq2pwklq9ae8kg8wgkfujcs26djuq"
+        self.nossd_client_type = 5
+        self.nossd_client_name = "bsh_002"
+
         self.all_dirves: Dict[Path, DriveInfo] = {}
 
-        self.ready_drives: Dict[Path, DriveInfo] = {}
+        self.readonly_drives: Dict[Path, DriveInfo] = {}
+        self.tmp_spt_or_fpt_drives: Dict[Path, DriveInfo] = {}
+        self.spt_or_fpt_drives: Dict[Path, DriveInfo] = {}
+
         self.plotting_drives: Dict[Path, DriveInfo] = {}
         self.finalizing_drives: Dict[Path, DriveInfo] = {}
-        self.finished_drives: Dict[Path, DriveInfo] = {}
-        self.standby_drives: Dict[Path, DriveInfo] = {}
-        self.completed_drives: Dict[Path, DriveInfo] = {}
+        
 
         self.debug = True
 
@@ -214,16 +221,16 @@ class Hpool2Nossd():
         d.fpts_n = fpts_n
         d.spts_n = spts_n
 
-        nossd_space = d.free_gb
-        nossd_tmp_path = drive_path / self.nossd_dir / self.nossd_tmp_file
-        if nossd_tmp_path.exists():
-            d.nossd_tmp_path = nossd_tmp_path
+        nossd_space = d.total_gb
+        if str(drive_path) in self.tmp_drive_paths:
+            d.tmp_drive_flag = True
             nossd_space -= self.total_tmp_space / self.parallel_nossd_num
 
         if nossd_space > 0:
-            d.plotting_spts_n = nossd_space // self.spt_space
-            d.plottting_fpts_n = nossd_space // self.fpt_space
-        
+            d.target_use_space = int(nossd_space)
+            d.target_spts_n = int(nossd_space // self.spt_space)
+            d.target_fpts_n = int(nossd_space // self.fpt_space)
+
         plots_path = drive_path / self.plots_dir
         plots_n = 0
         if plots_path.exists():
@@ -270,18 +277,11 @@ class Hpool2Nossd():
 
     def is_completed_drive(self, d: DriveInfo) -> bool:
 
+        condition = d.target_fpts_n == d.fpts_n if self.fpt_priority else d.target_spts_n == d.spts_n
+
         if not d.plotting_flag and not d.finalizing_flag:
-            if d.plots_n == 0 and d.free_gb < self.min_free_space:
+            if (d.plots_n == 0 and d.free_gb < self.min_free_space) or condition:
                 self.print_drive_info("completed", d)
-                return True
-
-        return False
-
-    def is_finished_drive(self, d: DriveInfo) -> bool:
-
-        if not d.plotting_flag and not d.finalizing_flag:
-            if d.free_gb < self.min_free_space:
-                self.print_drive_info("finished", d)
                 return True
 
         return False
@@ -310,15 +310,23 @@ class Hpool2Nossd():
             return True
 
         return False
+    
+    def is_tmp_drive(self, d: DriveInfo) -> bool:
 
-    def is_standby_drive(self, d: DriveInfo) -> bool:
-
-        if not d.plotting_flag and not d.finalizing_flag:
-            self.print_drive_info("standby", d)
+        if d.tmp_drive_flag:
+            self.print_drive_info("tmp_drive", d)
             return True
 
         return False
+    
+    def is_standby_drive(self, d: DriveInfo) -> bool:
 
+        if d.tmp_drive_flag:
+            self.print_drive_info("tmp_drive", d)
+            return True
+
+        return False
+    
     def get_drives_status(self):
 
         for drive in self.all_dirves:
@@ -326,52 +334,64 @@ class Hpool2Nossd():
             drive_info = self.all_dirves[drive]
 
             if self.is_completed_drive(drive_info):  # 已完成磁盘
-                self.completed_drives[drive] = drive_info
+                self.readonly_drives[drive] = drive_info
+            elif self.is_tmp_drive(drive_info):  # 临时文件磁盘
+                self.tmp_spt_or_fpt_drives[drive] = drive_info
+            else: #其余转换磁盘
+                self.spt_or_fpt_drives[drive] = drive_info 
+              
             if self.is_plotting_drive(drive_info):  # 正在转换spt
                 self.plotting_drives[drive] = drive_info
+                
             if self.is_finalizing_drive(drive_info):  # 正在转换fpt
                 self.finalizing_drives[drive] = drive_info
-            if self.is_standby_drive(drive_info):  # 等待转换磁盘
-                self.standby_drives[drive] = drive_info
-            if self.is_finished_drive(drive_info):  # 任务完成磁盘
-                self.finished_drives[drive] = drive_info
-            if self.is_ready_drive(drive_info):  # 可转换磁盘
-                self.ready_drives[drive] = drive_info
-
-        task_drives_num = len(self.plotting_drives) + len(self.finalizing_drives) + \
-            len(self.standby_drives) + len(self.finished_drives)
-        if task_drives_num != self.parallel_nossd_num:
-            print("error task drives number: {} : {}".format(
-                task_drives_num, self.parallel_nossd_num))
-            exit(1)
-
-        common_drive = self.plotting_drives.keys() & self.finalizing_drives.keys() & self.standby_drives.keys() & self.finished_drives.keys()
-        if common_drive:
-            print("error common in drives: {}".format(common_drive))
-            exit(1)
-            
-        common_drive = self.completed_drives.keys() & self.ready_drives.keys()
-        if common_drive:
-            print("error common in drives: {}".format(common_drive))
-            exit(1)
-            
-    @staticmethod
-    def update_nossd_start_sh(start_sh, client, address, type, name, d1, d2, d3, complete_drives):
+    
+    def update_nossd_start_sh(self):
         start_sh_context = '#!/usr/bin/env bash \n'\
                            'cd \"$(dirname \"$(realpath \"${BASH_SOURCE[0]:-$0}\")\")\"\n'
-        start_sh_context += str(client) + " \ \n"
-        start_sh_context += "	" + " -a " + str(address) + " \ \n"
+        start_sh_context += str(self.nossd_client_client) + " \\" + "\n"
+        start_sh_context += "	" + " -a " + str(self.nossd_client_address) + " \\" + "\n"
         start_sh_context += "	" + " -c " + \
-            str(type) + " -w " + str(name) + " --no-benchmark \ \n"
-        start_sh_context += "	" + " -d " + str(d1) + " \ \n"
-        start_sh_context += "	" + " -d " + str(d2) + " \ \n"
-        start_sh_context += "	" + " -d " + str(d3) + " \ \n"
+            str(self.nossd_client_type) + " -w " + str(self.nossd_client_name) + " --no-benchmark \\" + "\n"
+        
+        for d in self.tmp_spt_or_fpt_drives:
+            drive_info = self.tmp_spt_or_fpt_drives[d]
+            
+            nossd_dir = drive_info.drive_path / self.nossd_dir
+            if not nossd_dir.exists():
+                nossd_dir.mkdir()
+                
+            if self.fpt_priority:
+                start_sh_context += "	 -d,{:d}GB,{:d}N,tf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+            else:
+                start_sh_context += "	 -d,{:d}GB,{:d}N,ts {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
+                
+        for d in self.spt_or_fpt_drives:
+            drive_info = self.spt_or_fpt_drives[d]
+            
+            nossd_dir = drive_info.drive_path / self.nossd_dir
+            if not nossd_dir.exists():
+                nossd_dir.mkdir()
+                
+            if self.fpt_priority:
+                start_sh_context += "	 -d,{:d}GB,{:d}N,f {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+            else:
+                start_sh_context += "	 -d,{:d}GB,{:d}N,s {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
+                
+        for d in self.readonly_drives:
+            drive_info = self.readonly_drives[d]
+            
+            nossd_dir = drive_info.drive_path / self.nossd_dir
+            if not nossd_dir.exists():
+                nossd_dir.mkdir()
+                
+            start_sh_context += "	 -d,r {} \\".format(nossd_dir) + "\n"
 
-        for d in complete_drives:
-            start_sh_context += "	" + " -d,r " + str(d) + " \ \n"
-
-        with open(start_sh, "w") as f:
+        with open(self.nossd_client_start_sh, "w") as f:
             f.write(start_sh_context)
+            f.close()
+            
+            os.chmod(self.nossd_client_start_sh, stat.S_IRWXU)
 
     def run(self):
         pass
@@ -382,7 +402,8 @@ if __name__ == '__main__':
     n = Hpool2Nossd()
 
     n.get_all_dirves()
-    n.get_nossd_status()
     n.get_drives_status()
-
+    
+    n.update_nossd_start_sh()
+    
     print()
