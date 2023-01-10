@@ -1,4 +1,4 @@
-# Hpool图转Nossd自动化工具
+# Hpool转Nossd自动化工具
 
 ## 特点
 - 可支持自定义fpt/spt优先级
