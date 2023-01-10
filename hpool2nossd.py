@@ -395,7 +395,7 @@ class hpool2nossd():
 
     def run(self):
         
-        #获取初始磁盘列表
+        #获取初始磁盘信息
         self.get_all_dirves()
         #更新磁盘状态
         self.get_drives_status()
@@ -414,6 +414,10 @@ class hpool2nossd():
             #更新磁盘状态
             print("check drives status....\n")
             sys.stdout.flush()
+            
+            #更新磁盘信息
+            self.get_all_dirves()
+            #更新磁盘状态
             self.get_drives_status()
 
             if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
