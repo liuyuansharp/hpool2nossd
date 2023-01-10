@@ -362,7 +362,7 @@ class Hpool2Nossd():
                 nossd_dir.mkdir()
                 
             if self.fpt_priority:
-                start_sh_context += "	 -d,{:d}GB,{:d}N,tf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+                start_sh_context += "	 -d,{:d}GB,{:d}N,tsf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,ts {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
                 
@@ -374,7 +374,7 @@ class Hpool2Nossd():
                 nossd_dir.mkdir()
                 
             if self.fpt_priority:
-                start_sh_context += "	 -d,{:d}GB,{:d}N,f {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+                start_sh_context += "	 -d,{:d}GB,{:d}N,sf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,s {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
                 
