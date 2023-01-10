@@ -28,87 +28,14 @@
     - 程序退出，当待转换Hpool plots磁盘全部转换完成
 ## 使用方法
 
-### 配置hpool服务
-```
-# 必须是root用户
-# sudo su
-
-# 创建systemd服务，根据hpool minner位置 配置以下路径
-cat > /lib/systemd/system/hpoolpp.service <<EOF
-[Unit]
-Description=hpoolpp
-After=multi-user.target
-StartLimitIntervalSec=0
-
-[Service]
-Type=forking
-ExecStart=/bin/bash -c "/home/chiapp/linux/hpool-miner-chia-pp -config /home/chiapp/config.yaml &" 
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s QUIT $MAINPID
-Restart=always
-RestartSec=1
-TimeoutStartSec=30
-User=root
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 设置开机启动，并启动该服务
-systemctl daemon-reload
-systemctl enable hpoolpp
-
-systemctl start hpoolpp
-```
-
-### 检查记录
-```
-journalctl -u hpoolpp.service -f
-```
-
-### 配置nossd服务
-```
-# 必须是root用户
-# sudo su
-
-# 创建systemd服务，根据nossd minner位置 配置以下启动脚本路径
-cat > /lib/systemd/system/nossd.service <<EOF
-[Unit]
-Description=nossd
-After=multi-user.target
-StartLimitIntervalSec=0
-
-[Service]
-Type=forking
-ExecStart=/bin/bash -c "/root/install/nossd-1.2/start.sh &"  
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s QUIT $MAINPID
-Restart=always
-RestartSec=1
-TimeoutStartSec=30
-User=root
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 设置开机启动，并启动该服务
-systemctl daemon-reload
-systemctl enable nossd
-
-systemctl start nossd
-```
-
-### 检查记录
-```
-journalctl -u nossd.service -f
-```
-
 ### 获取hpool2nossd.py
 ```
+#安装python3
 su root
 apt install python3
-wget https://raw.githubusercontent.com/liuyuansharp/hpool2nossd/main/hpool2nossd.py
+
+#下载
+git clone https://github.com/liuyuansharp/hpool2nossd.git
 ```
 ### 配置hpool2nossd输入
 ``` python
@@ -190,4 +117,102 @@ systemctl start hpool2nossd
 ### 检查记录
 ```
 journalctl -u hpool2nossd.service -f
+```
+
+```
+#示例
+
+1月 10 23:18:18 harvester2 bash[2015151]: status: plotting
+1月 10 23:18:18 harvester2 bash[2015151]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 10 23:18:18 harvester2 bash[2015151]: drive info: [total_gb/used_gb/free_gb] : [16696/15785/910]
+1月 10 23:18:18 harvester2 bash[2015151]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
+1月 10 23:18:18 harvester2 bash[2015151]: nossd info: fpts_n: 77 spts_n: 1
+1月 10 23:18:18 harvester2 bash[2015151]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
+1月 10 23:18:18 harvester2 bash[2015151]: plots info: plots_n: 95
+1月 10 23:18:18 harvester2 bash[2015151]: waitting 300 s ,check drives status again....
+1月 10 23:23:19 harvester2 bash[2015151]: check drives status....
+1月 10 23:23:19 harvester2 bash[2015151]: status: plotting
+1月 10 23:23:19 harvester2 bash[2015151]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 10 23:23:19 harvester2 bash[2015151]: drive info: [total_gb/used_gb/free_gb] : [16696/15785/910]
+1月 10 23:23:19 harvester2 bash[2015151]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
+1月 10 23:23:19 harvester2 bash[2015151]: nossd info: fpts_n: 77 spts_n: 1
+1月 10 23:23:19 harvester2 bash[2015151]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
+1月 10 23:23:19 harvester2 bash[2015151]: plots info: plots_n: 95
+1月 10 23:23:19 harvester2 bash[2015151]: waitting 300 s ,check drives status again....
+```
+
+### 配置hpool服务
+```
+# 必须是root用户
+# sudo su
+
+# 创建systemd服务，根据hpool minner位置 配置以下路径
+cat > /lib/systemd/system/hpoolpp.service <<EOF
+[Unit]
+Description=hpoolpp
+After=multi-user.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+ExecStart=/bin/bash -c "/home/chiapp/linux/hpool-miner-chia-pp -config /home/chiapp/config.yaml &" 
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+Restart=always
+RestartSec=1
+TimeoutStartSec=30
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 设置开机启动，并启动该服务
+systemctl daemon-reload
+systemctl enable hpoolpp
+
+systemctl start hpoolpp
+```
+
+### 检查记录
+```
+journalctl -u hpoolpp.service -f
+```
+
+### 配置nossd服务
+```
+# 必须是root用户
+# sudo su
+
+# 创建systemd服务，根据nossd minner位置 配置以下启动脚本路径
+cat > /lib/systemd/system/nossd.service <<EOF
+[Unit]
+Description=nossd
+After=multi-user.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+ExecStart=/bin/bash -c "/root/install/nossd-1.2/start.sh &"  
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+Restart=always
+RestartSec=1
+TimeoutStartSec=30
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 设置开机启动，并启动该服务
+systemctl daemon-reload
+systemctl enable nossd
+
+systemctl start nossd
+```
+
+### 检查记录
+```
+journalctl -u nossd.service -f
 ```
