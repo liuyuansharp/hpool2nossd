@@ -108,7 +108,7 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# 设置开机启动，并启动该服务（按需）
+# 设置开机启动
 systemctl daemon-reload
 systemctl enable hpool2nossd
 ```
@@ -139,7 +139,7 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# 设置开机启动，并启动该服务
+# 设置开机启动
 systemctl daemon-reload
 systemctl enable hpoolpp
 
@@ -171,7 +171,7 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# 设置开机启动，并启动该服务
+# 设置开机启动
 systemctl daemon-reload
 systemctl enable nossd
 
