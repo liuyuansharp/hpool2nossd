@@ -48,7 +48,7 @@ class hpool2nossd():
         #是否fpt文件优先
         self.fpt_priority = False
         #每次删除hpool图数量
-        self.delete_plots_num_per_time = 3
+        self.delete_plots_num_per_time = 2
         
         #磁盘挂载根目录
         self.drive_root_path = Path("/srv/")
