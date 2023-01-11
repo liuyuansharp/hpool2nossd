@@ -328,7 +328,13 @@ class hpool2nossd():
         return False
     
     def get_drives_status(self):
-
+        
+        self.readonly_drives.clear()
+        self.tmp_spt_or_fpt_drives.clear()
+        self.spt_or_fpt_drives.clear()
+        self.plotting_drives.clear()
+        self.finalizing_drives.clear()
+        
         for drive in self.all_dirves:
 
             drive_info = self.all_dirves[drive]
