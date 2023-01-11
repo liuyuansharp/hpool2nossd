@@ -1,5 +1,21 @@
 # Hpool转Nossd自动化工具
 
+## 目录
+-  [**特点**](#特点)
+-  [**简介**](#简介)
+-  [**使用方法**](#使用方法)
+    -  [**获取hpool2nossd**](#获取hpool2nossd)
+    -  [**配置hpool2nossd输入**](#配置hpool2nossd输入)
+    -  [**配置hpool2nossd服务**](#配置hpool2nossd服务)
+    -  [**配置hpool服务**](#配置hpool服务)
+    -  [**配置nossd服务**](#配置nossd服务)
+    -  [**配置hpool2nossd服务**](#配置hpool2nossd服务)
+-  [**启动并检查服务记录**](#启动并检查服务记录)
+    -  [**启动并检查hpool记录**](#启动并检查hpool记录)
+    -  [**启动并检查nossd记录**](#启动并检查nossd记录)
+    -  [**启动并检查hpool2nossd记录**](#启动并检查hpool2nossd记录)
+
+---
 ## 特点
 - 可支持自定义fpt/spt优先级
 - 可支持自定义每次删除图数量
@@ -26,9 +42,9 @@
         - 8.继续检测Nossd服务,重复1-7
     - 循环监控重复 `已设定磁盘转换` 
     - 程序退出，当待转换Hpool plots磁盘全部转换完成
-## 使用方法
 
-- ### 获取hpool2nossd.py
+## 使用方法
+- ### 获取hpool2nossd
 ```bash
 #安装python3
 su root
@@ -179,6 +195,7 @@ systemctl daemon-reload
 systemctl enable nossd
 
 ```
+- ## 启动并检查服务记录
 
 - ### 启动并检查hpoolpp记录
 ```bash
