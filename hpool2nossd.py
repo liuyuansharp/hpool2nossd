@@ -438,26 +438,33 @@ class hpool2nossd():
             self.get_drives_status()
 
             if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
-                if not self.is_all_drives_plots_empty():
-                    #重启hpool，删除plots
-                    if self.set_hpool_service("stop"):
-                        self.reduce_plots()
-                        self.set_hpool_service("start")
-                    
-                    #重启nossd，更新nossd脚本
-                    if self.set_nossd_service("stop"):
-                        self.update_nossd_start_sh(self.fpt_priority)
-                        self.set_nossd_service("start")
-                else:
-                    if not self.fpt_priority:
-                        print("spts -> fpts....\n")
+                #再次确认,避免Nossd完成上一张图切换下一张图时进入删图流程
+                sleep(300)
+                #更新磁盘信息
+                self.get_all_dirves()
+                #更新磁盘状态
+                self.get_drives_status()
+                if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
+                    if not self.is_all_drives_plots_empty():
+                        #重启hpool，删除plots
+                        if self.set_hpool_service("stop"):
+                            self.reduce_plots()
+                            self.set_hpool_service("start")
+                        
                         #重启nossd，更新nossd脚本
                         if self.set_nossd_service("stop"):
-                            self.update_nossd_start_sh(True)
+                            self.update_nossd_start_sh(self.fpt_priority)
                             self.set_nossd_service("start")
                     else:
-                        print("done")
-                        return
+                        if not self.fpt_priority:
+                            print("spts -> fpts....\n")
+                            #重启nossd，更新nossd脚本
+                            if self.set_nossd_service("stop"):
+                                self.update_nossd_start_sh(True)
+                                self.set_nossd_service("start")
+                        else:
+                            print("done")
+                            return
                         
 if __name__ == '__main__':
 
