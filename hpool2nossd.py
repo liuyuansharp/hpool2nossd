@@ -403,9 +403,9 @@ class hpool2nossd():
         if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
             if not self.is_all_drives_plots_empty():
                 #重启nossd，更新nossd脚本
-                if self.set_hpool_service("stop"):
+                if self.set_nossd_service("stop"):
                     self.update_nossd_start_sh()
-                    self.set_hpool_service("start")
+                    self.set_nossd_service("start")
             else:
                 print("done")
                 return
