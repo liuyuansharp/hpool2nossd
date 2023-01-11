@@ -33,6 +33,9 @@
 #安装python3
 su root
 apt install python3
+apt install python3-pip
+apt install git
+pip install subprocess.run
 
 #下载
 git clone https://github.com/liuyuansharp/hpool2nossd.git
