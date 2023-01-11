@@ -295,7 +295,7 @@ class hpool2nossd():
 
     def is_completed_drive(self, d: DriveInfo) -> bool:
 
-        condition = d.fpts_n >= d.target_fpts_n if self.fpt_priority else d.spts_n >= d.target_spts_n
+        condition = d.fpts_n >= d.target_fpts_n
 
         if not d.plotting_flag and not d.finalizing_flag and condition:
             # self.print_drive_info("completed", d)
@@ -346,7 +346,7 @@ class hpool2nossd():
             if self.is_finalizing_drive(drive_info):  # 正在转换fpt
                 self.finalizing_drives[drive] = drive_info
     
-    def update_nossd_start_sh(self):
+    def update_nossd_start_sh(self,fpt_priority):
         start_sh_context = '#!/usr/bin/env bash \n'\
                            'cd \"$(dirname \"$(realpath \"${BASH_SOURCE[0]:-$0}\")\")\"\n'
         start_sh_context += str(self.nossd_client) + " \\" + "\n"
@@ -361,7 +361,7 @@ class hpool2nossd():
             if not nossd_dir.exists():
                 nossd_dir.mkdir()
                 
-            if self.fpt_priority:
+            if fpt_priority:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,tsf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,ts {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
@@ -373,7 +373,7 @@ class hpool2nossd():
             if not nossd_dir.exists():
                 nossd_dir.mkdir()
                 
-            if self.fpt_priority:
+            if fpt_priority:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,sf {} \\".format(drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,s {} \\".format(drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
@@ -404,11 +404,18 @@ class hpool2nossd():
             if not self.is_all_drives_plots_empty():
                 #重启nossd，更新nossd脚本
                 if self.set_nossd_service("stop"):
-                    self.update_nossd_start_sh()
+                    self.update_nossd_start_sh(self.fpt_priority)
                     self.set_nossd_service("start")
             else:
-                print("done")
-                return
+                if not self.fpt_priority:
+                    print("spts -> fpts....\n")
+                    #重启nossd，更新nossd脚本
+                    if self.set_nossd_service("stop"):
+                        self.update_nossd_start_sh(True)
+                        self.set_nossd_service("start")
+                else:
+                    print("done")
+                    return
                         
         while True:
             print("waitting {} s ,check drives status again....\n".format(self.waitting_time))
@@ -433,11 +440,18 @@ class hpool2nossd():
                     
                     #重启nossd，更新nossd脚本
                     if self.set_nossd_service("stop"):
-                        self.update_nossd_start_sh()
+                        self.update_nossd_start_sh(self.fpt_priority)
                         self.set_nossd_service("start")
                 else:
-                    print("done")
-                    return
+                    if not self.fpt_priority:
+                        print("spts -> fpts....\n")
+                        #重启nossd，更新nossd脚本
+                        if self.set_nossd_service("stop"):
+                            self.update_nossd_start_sh(True)
+                            self.set_nossd_service("start")
+                    else:
+                        print("done")
+                        return
                         
 if __name__ == '__main__':
 
