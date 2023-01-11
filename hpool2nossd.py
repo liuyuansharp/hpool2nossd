@@ -176,7 +176,7 @@ class hpool2nossd():
         return False
     
     def set_hpool_service(self,cmd):
-        p = subprocess.Popen("service {} {}}".format(self.hpool_service,cmd),
+        p = subprocess.Popen("service {} {}".format(self.hpool_service,cmd),
                              shell=True,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
@@ -190,7 +190,7 @@ class hpool2nossd():
         return False
 
     def set_nossd_service(self,cmd):
-        p = subprocess.Popen("service {} {}}".format(self.nossd_service,cmd),
+        p = subprocess.Popen("service {} {}".format(self.nossd_service,cmd),
                              shell=True,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
