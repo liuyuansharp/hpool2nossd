@@ -29,7 +29,7 @@
 ## 使用方法
 
 ### 获取hpool2nossd.py
-```
+```bash
 #安装python3
 su root
 apt install python3
@@ -83,7 +83,7 @@ self.nossd_tmp_drive_paths = \
 ```
 
 ### 配置hpool2nossd服务
-```
+```bash
 # 必须是root用户
 # sudo su
 
@@ -111,38 +111,10 @@ EOF
 # 设置开机启动，并启动该服务（按需）
 systemctl daemon-reload
 systemctl enable hpool2nossd
-
-systemctl start hpool2nossd
-```
-### 检查记录
-```
-journalctl -u hpool2nossd.service -f
-```
-
-```
-#示例
-
-1月 10 23:18:18 harvester2 bash[2015151]: status: plotting
-1月 10 23:18:18 harvester2 bash[2015151]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 10 23:18:18 harvester2 bash[2015151]: drive info: [total_gb/used_gb/free_gb] : [16696/15785/910]
-1月 10 23:18:18 harvester2 bash[2015151]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
-1月 10 23:18:18 harvester2 bash[2015151]: nossd info: fpts_n: 77 spts_n: 1
-1月 10 23:18:18 harvester2 bash[2015151]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
-1月 10 23:18:18 harvester2 bash[2015151]: plots info: plots_n: 95
-1月 10 23:18:18 harvester2 bash[2015151]: waitting 300 s ,check drives status again....
-1月 10 23:23:19 harvester2 bash[2015151]: check drives status....
-1月 10 23:23:19 harvester2 bash[2015151]: status: plotting
-1月 10 23:23:19 harvester2 bash[2015151]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 10 23:23:19 harvester2 bash[2015151]: drive info: [total_gb/used_gb/free_gb] : [16696/15785/910]
-1月 10 23:23:19 harvester2 bash[2015151]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
-1月 10 23:23:19 harvester2 bash[2015151]: nossd info: fpts_n: 77 spts_n: 1
-1月 10 23:23:19 harvester2 bash[2015151]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
-1月 10 23:23:19 harvester2 bash[2015151]: plots info: plots_n: 95
-1月 10 23:23:19 harvester2 bash[2015151]: waitting 300 s ,check drives status again....
 ```
 
 ### 配置hpool服务
-```
+```bash
 # 必须是root用户
 # sudo su
 
@@ -171,16 +143,10 @@ EOF
 systemctl daemon-reload
 systemctl enable hpoolpp
 
-systemctl start hpoolpp
-```
-
-### 检查记录
-```
-journalctl -u hpoolpp.service -f
 ```
 
 ### 配置nossd服务
-```
+```bash
 # 必须是root用户
 # sudo su
 
@@ -209,10 +175,91 @@ EOF
 systemctl daemon-reload
 systemctl enable nossd
 
-systemctl start nossd
 ```
 
-### 检查记录
+### 启动并检查hpoolpp记录
+```bash
+#启动hpoolpp服务
+systemctl start hpoolpp
+
+#查看日志
+journalctl -u hpoolpp.service -f
 ```
+
+```log
+1月 11 21:04:22 harvester2 bash[2342835]: time="2023-01-11T21:04:22+08:00" level=info msg="upload status" file=loggers.go func=logging.CPrint interval=180 line=168 pre upload time="2023-01-11 21:01:22" tid=21505
+1月 11 21:04:24 harvester2 bash[2342835]: time="2023-01-11T21:04:24+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091271 jobId=942747955 line=168 scan consume=4416 scan time="2023-01-11 21:04:16" tid>
+1月 11 21:04:33 harvester2 bash[2342835]: time="2023-01-11T21:04:33+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091271 jobId=892613170 line=168 scan consume=4416 scan time="2023-01-11 21:04:24" tid>
+1月 11 21:04:43 harvester2 bash[2342835]: time="2023-01-11T21:04:43+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091271 jobId=1630955058 line=168 scan consume=4416 scan time="2023-01-11 21:04:33" ti>
+1月 11 21:04:52 harvester2 bash[2342835]: time="2023-01-11T21:04:52+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091272 jobId=1633890352 line=168 scan consume=4416 scan time="2023-01-11 21:04:43" ti>
+1月 11 21:05:01 harvester2 bash[2342835]: time="2023-01-11T21:05:01+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091272 jobId=892613218 line=168 scan consume=4416 scan time="2023-01-11 21:04:52" tid>
+1月 11 21:05:11 harvester2 bash[2342835]: time="2023-01-11T21:05:11+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091272 jobId=828519523 line=168 scan consume=4416 scan time="2023-01-11 21:05:01" tid>
+```
+
+### 启动并检查nossd记录
+```bash
+#启动nossd服务
+systemctl start nossd
+
+#查看日志
 journalctl -u nossd.service -f
+```
+
+```log
+1月 11 21:03:39 harvester2 bash[2342868]: 21:03:39 Signage point 6c42...c2b0
+1月 11 21:03:41 harvester2 bash[2342868]: 21:03:41 Plotting, 53%, 53m 17s elapsed, 46m 40s remaining
+1月 11 21:03:49 harvester2 bash[2342868]: 21:03:49 Signage point 08c6...5ec3
+1月 11 21:03:51 harvester2 bash[2342868]: 21:03:51 Plotting, 54%, 53m 27s elapsed, 46m 30s remaining
+1月 11 21:03:51 harvester2 bash[2342868]: 21:03:51 Share generated using plot a420...b50c
+1月 11 21:03:57 harvester2 bash[2342868]: 21:03:57 Signage point 2e05...5003
+1月 11 21:04:01 harvester2 bash[2342868]: 21:04:01 Plotting, 54%, 53m 37s elapsed, 46m 11s remaining
+1月 11 21:04:06 harvester2 bash[2342868]: 21:04:06 Signage point 1584...e690
+1月 11 21:04:11 harvester2 bash[2342868]: 21:04:11 Plotting, 54%, 53m 47s elapsed, 45m 52s remaining
+1月 11 21:04:16 harvester2 bash[2342868]: 21:04:16 Signage point 69c5...bd9e
+```
+
+
+### 启动并检查hpool2nossd记录
+```bash
+#启动hpool2nossd服务
+systemctl start hpool2nossd
+
+#查看日志
+journalctl -u hpool2nossd.service -f
+```
+
+```log
+1月 11 20:05:03 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
+1月 11 20:10:03 harvester2 bash[2342018]: check drives status....
+1月 11 20:10:17 harvester2 bash[2342018]: deleting /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-00-54-977cdabd25fe149603ef12743de23fdd5680f374ac21904219d2e4401adeae3b.plot...
+1月 11 20:10:17 harvester2 bash[2342018]: done /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-00-54-977cdabd25fe149603ef12743de23fdd5680f374ac21904219d2e4401adeae3b.plot...
+1月 11 20:10:17 harvester2 bash[2342018]: deleting /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-07-50-7f5b8e9210de29bef6741f1205d2e385969d37adc8a793e0b238dd9518191457.plot...
+1月 11 20:10:17 harvester2 bash[2342018]: done /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-07-50-7f5b8e9210de29bef6741f1205d2e385969d37adc8a793e0b238dd9518191457.plot...
+1月 11 20:10:17 harvester2 bash[2342018]: done, deleted 2 plots in /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files!
+1月 11 20:10:17 harvester2 bash[2342018]: status: deleted
+1月 11 20:10:17 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 11 20:10:17 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16681/14]
+1月 11 20:10:17 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
+1月 11 20:10:17 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 11
+1月 11 20:10:17 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
+1月 11 20:10:17 harvester2 bash[2342018]: plots info: plots_n: 93
+1月 11 20:10:19 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
+1月 11 20:15:20 harvester2 bash[2342018]: check drives status....
+1月 11 20:15:21 harvester2 bash[2342018]: status: plotting
+1月 11 20:15:21 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 11 20:15:21 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16478/217]
+1月 11 20:15:21 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
+1月 11 20:15:21 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 12
+1月 11 20:15:21 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
+1月 11 20:15:21 harvester2 bash[2342018]: plots info: plots_n: 93
+1月 11 20:15:21 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
+1月 11 20:20:21 harvester2 bash[2342018]: check drives status....
+1月 11 20:20:21 harvester2 bash[2342018]: status: plotting
+1月 11 20:20:21 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 11 20:20:21 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16478/217]
+1月 11 20:20:21 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
+1月 11 20:20:21 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 12
+1月 11 20:20:21 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
+1月 11 20:20:21 harvester2 bash[2342018]: plots info: plots_n: 93
+1月 11 20:20:21 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
 ```
