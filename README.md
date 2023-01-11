@@ -28,7 +28,7 @@
     - 程序退出，当待转换Hpool plots磁盘全部转换完成
 ## 使用方法
 
-### 获取hpool2nossd.py
+- ### 获取hpool2nossd.py
 ```bash
 #安装python3
 su root
@@ -40,7 +40,7 @@ pip install subprocess.run
 #下载
 git clone https://github.com/liuyuansharp/hpool2nossd.git
 ```
-### 配置hpool2nossd输入
+- ### 配置hpool2nossd输入
 ``` python
 #配置hpool2nossd.py 47-88行
 ###################配置区域开始###################
@@ -84,8 +84,8 @@ self.nossd_tmp_drive_paths = \
 ###################配置区域结束####################
 
 ```
+- ### 配置hpool2nossd服务
 
-### 配置hpool2nossd服务
 ```bash
 # 必须是root用户
 # sudo su
@@ -116,7 +116,7 @@ systemctl daemon-reload
 systemctl enable hpool2nossd
 ```
 
-### 配置hpool服务
+- ### 配置hpool服务
 ```bash
 # 必须是root用户
 # sudo su
@@ -148,7 +148,7 @@ systemctl enable hpoolpp
 
 ```
 
-### 配置nossd服务
+- ### 配置nossd服务
 ```bash
 # 必须是root用户
 # sudo su
@@ -180,7 +180,7 @@ systemctl enable nossd
 
 ```
 
-### 启动并检查hpoolpp记录
+- ### 启动并检查hpoolpp记录
 ```bash
 #启动hpoolpp服务
 systemctl start hpoolpp
@@ -199,7 +199,7 @@ journalctl -u hpoolpp.service -f
 1月 11 21:05:11 harvester2 bash[2342835]: time="2023-01-11T21:05:11+08:00" level=info msg="new mining info" capacity="254.59 TB" chain=Chia file=loggers.go func=logging.CPrint height=3091272 jobId=828519523 line=168 scan consume=4416 scan time="2023-01-11 21:05:01" tid>
 ```
 
-### 启动并检查nossd记录
+- ### 启动并检查nossd记录
 ```bash
 #启动nossd服务
 systemctl start nossd
@@ -222,7 +222,7 @@ journalctl -u nossd.service -f
 ```
 
 
-### 启动并检查hpool2nossd记录
+- ### 启动并检查hpool2nossd记录
 ```bash
 #启动hpool2nossd服务
 systemctl start hpool2nossd
