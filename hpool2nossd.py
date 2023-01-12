@@ -339,6 +339,10 @@ class hpool2nossd():
                 all_fpts += drive_info.fpts_n
                 all_space += drive_info.total_gb
         
+        self.all_plots_pre = self.all_plots
+        self.all_spts_pre = self.all_spts
+        self.all_fpts_pre = self.all_fpts
+        
         self.all_plots = all_plots
         self.all_spts = all_spts
         self.all_fpts = all_fpts
@@ -361,15 +365,16 @@ class hpool2nossd():
 
         print("drive: {}".format(d.drive_path))
         print(
-            "space:[total/used/free]:[{}/{}/{}]".format(d.total_gb, d.used_gb, d.free_gb))
+            "[total/used/free]:[{}/{}/{}]".format(d.total_gb, d.used_gb, d.free_gb))
         print(
-            "info:[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n,d.fpts_n, d.spts_n))
+            "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n,d.fpts_n, d.spts_n))
         
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
-        print("drive_all:[all/comp/uncomp]:[{}/{}/{}]".format(all,completed,uncompleted))
-        print("info_all:[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots,self.all_fpts,self.all_spts))
+        print("[all/comp/uncomp]:[{}/{}/{}]".format(all,completed,uncompleted))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_pre,self.all_fpts_pre,self.all_spts_pre))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots,self.all_fpts,self.all_spts))
 
         sys.stdout.flush()
 
