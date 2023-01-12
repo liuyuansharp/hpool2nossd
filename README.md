@@ -51,7 +51,7 @@ su root
 apt install python3
 apt install python3-pip
 apt install git
-pip install ruamel.yaml
+pip3 install ruamel.yaml
 pip3 install subprocess.run
 
 #下载
