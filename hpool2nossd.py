@@ -386,7 +386,7 @@ class hpool2nossd():
     def is_plotting_drive(self, d: DriveInfo) -> bool:
 
         if d.plotting_flag:
-            self.print_drive_info("plotting", d)
+            # self.print_drive_info("plotting", d)
             return True
 
         return False
@@ -394,7 +394,7 @@ class hpool2nossd():
     def is_finalizing_drive(self, d: DriveInfo) -> bool:
 
         if d.finalizing_flag:
-            self.print_drive_info("finalizing", d)
+            # self.print_drive_info("finalizing", d)
             return True
 
         return False
@@ -431,7 +431,13 @@ class hpool2nossd():
 
             if self.is_finalizing_drive(drive_info):  # 正在转换fpt
                 self.finalizing_drives[drive] = drive_info
-
+                
+        for d in self.plotting_drives:
+            self.print_drive_info("plotting", d)
+            
+        for d in self.finalizing_drives:
+            self.print_drive_info("finalizing", d)
+            
     def update_nossd_start_sh(self, fpt_priority):
         start_sh_context = '#!/usr/bin/env bash \n'\
                            'cd \"$(dirname \"$(realpath \"${BASH_SOURCE[0]:-$0}\")\")\"\n'
