@@ -144,9 +144,11 @@ class hpool2nossd():
                 
             if "nossd_path" in data:
                 self.nossd_path = Path(data["nossd_path"])
+                self.nossd_client = self.nossd_path / "client"
                 
             if "nossd_start_sh" in data:
                 self.nossd_start_sh_name = data["nossd_start_sh"]
+                self.nossd_start_sh = self.nossd_path / self.nossd_start_sh_name
                 
             if "nossd_type" in data:
                 self.nossd_type = data["nossd_type"]
