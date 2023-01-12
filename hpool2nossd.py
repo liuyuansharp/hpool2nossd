@@ -436,7 +436,7 @@ class hpool2nossd():
             self.print_drive_info("plotting", self.plotting_drives[d])
             
         for d in self.finalizing_drives:
-            self.print_drive_info("finalizing", self.plotting_drives[d])
+            self.print_drive_info("finalizing", self.finalizing_drives[d])
             
     def update_nossd_start_sh(self, fpt_priority):
         start_sh_context = '#!/usr/bin/env bash \n'\
