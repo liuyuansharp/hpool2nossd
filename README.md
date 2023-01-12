@@ -11,7 +11,7 @@
     -  [配置nossd服务](#配置nossd服务)
     -  [配置hpool2nossd服务](#配置hpool2nossd服务)
 -  [**启动并检查服务记录**](#启动并检查服务记录)
-    -  [启动并检查hpool记录](#启动并检查hpool记录)
+    -  [启动并检查hpool记录](#启动并检查hpoolpp记录)
     -  [启动并检查nossd记录](#启动并检查nossd记录)
     -  [启动并检查hpool2nossd记录](#启动并检查hpool2nossd记录)
 
