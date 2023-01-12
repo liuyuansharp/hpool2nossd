@@ -51,53 +51,50 @@ su root
 apt install python3
 apt install python3-pip
 apt install git
+pip install ruamel.yaml
 pip3 install subprocess.run
 
 #下载
 git clone https://github.com/liuyuansharp/hpool2nossd.git
 ```
-- ### 配置hpool2nossd输入
-``` python
-#配置hpool2nossd.py 47-88行
-###################配置区域开始###################
-#是否fpt文件优先
-self.fpt_priority = False
-#每次删除hpool图数量
-self.delete_plots_num_per_time = 2
+- ### 配置hpool2nossd输入"config.yaml"
+```yaml
+# 是否fpt文件优先
+fpt_priority: False
 
-#磁盘挂载根目录
-self.drive_root_path = Path("/srv/")
-#磁盘文件夹标识（用于排除磁盘挂载根目录下排除无效目录，可为填""，则不作排除）
-self.drive_character = "disk"
+# 每次删除hpool图数量
+delete_plots_num_per_time: 2
 
-#hpool图目录名
-self.plots_dir = "chiapp-files"
-#nossd图目录名
-self.nossd_dir = "nossd"
-#hpool服务名
-self.hpool_service = "hpoolpp"
-#nossd服务名
-self.nossd_service = "nossd"
+# 磁盘挂载根目录
+drive_root_path: "/srv/"
+# 磁盘文件夹标识（用于排除磁盘挂载根目录下排除无效目录，可为填""，则不作排除）
+drive_character: "disk"
 
-#nossd安装文件目录
-self.nossd_path = Path("/root/install/nossd-1.2/")
-#nossd脚本名
-self.nossd_start_sh_name = "start.sh"
+# hpool图目录名
+plots_dir: "chiapp-files"
+# nossd图目录名
+nossd_dir: "nossd"
+# hpool服务名
+hpool_service: "hpoolpp"
+# nossd服务名
+nossd_service: "nossd"
 
-#nossd压缩等级
-self.nossd_type = 5
-#nossd机器名
-self.nossd_name = "bsh_001"
-#nossd收益地址
-self.nossd_address = "xch1m49h6ny95xgs5a3p2wg6ghnr3vejsqq2pwklq9ae8kg8wgkfujcs26djuq"
-#nossd临时文件磁盘
-self.nossd_tmp_drive_paths = \
-    [
-        "/srv/dev-disk-by-uuid-9802c526-c5e2-44a4-9e29-b7e1b7b805a0",
-        "/srv/dev-disk-by-uuid-ffeb0e19-8f2a-453a-abec-9aa7884c1124",
-        "/srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01"
-    ]
-###################配置区域结束####################
+# nossd安装文件目录
+nossd_path: "/root/install/nossd-1.2/"
+# nossd脚本名
+nossd_start_sh: "start.sh"
+
+# nossd压缩等级
+nossd_type: 5
+# nossd机器名
+nossd_name: "bsh_001"
+# nossd收益地址
+nossd_address: "xch1m49h6ny95xgs5a3p2wg6ghnr3vejsqq2pwklq9ae8kg8wgkfujcs26djuq"
+# nossd临时文件磁盘
+nossd_tmp_drive_paths: 
+  - "/srv/dev-disk-by-uuid-9802c526-c5e2-44a4-9e29-b7e1b7b805a0"
+  - "/srv/dev-disk-by-uuid-ffeb0e19-8f2a-453a-abec-9aa7884c1124"
+  - "/srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01"
 
 ```
 - ### 配置hpool2nossd服务
@@ -115,7 +112,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c "/usr/bin/python3 /root/install/hpool2nossd/hpool2nossd.py &"
+ExecStart=/bin/bash -c "/usr/bin/python3 /root/install/hpool2nossd/hpool2nossd.py /root/install/hpool2nossd/config.yaml &"
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s QUIT $MAINPID
 Restart=always
@@ -249,37 +246,13 @@ journalctl -u hpool2nossd.service -f
 ```
 
 ```log
-1月 11 20:05:03 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
-1月 11 20:10:03 harvester2 bash[2342018]: check drives status....
-1月 11 20:10:17 harvester2 bash[2342018]: deleting /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-00-54-977cdabd25fe149603ef12743de23fdd5680f374ac21904219d2e4401adeae3b.plot...
-1月 11 20:10:17 harvester2 bash[2342018]: done /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-00-54-977cdabd25fe149603ef12743de23fdd5680f374ac21904219d2e4401adeae3b.plot...
-1月 11 20:10:17 harvester2 bash[2342018]: deleting /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-07-50-7f5b8e9210de29bef6741f1205d2e385969d37adc8a793e0b238dd9518191457.plot...
-1月 11 20:10:17 harvester2 bash[2342018]: done /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files/plot-k32-2022-03-27-07-50-7f5b8e9210de29bef6741f1205d2e385969d37adc8a793e0b238dd9518191457.plot...
-1月 11 20:10:17 harvester2 bash[2342018]: done, deleted 2 plots in /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files!
-1月 11 20:10:17 harvester2 bash[2342018]: status: deleted
-1月 11 20:10:17 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 11 20:10:17 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16681/14]
-1月 11 20:10:17 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
-1月 11 20:10:17 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 11
-1月 11 20:10:17 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
-1月 11 20:10:17 harvester2 bash[2342018]: plots info: plots_n: 93
-1月 11 20:10:19 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
-1月 11 20:15:20 harvester2 bash[2342018]: check drives status....
-1月 11 20:15:21 harvester2 bash[2342018]: status: plotting
-1月 11 20:15:21 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 11 20:15:21 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16478/217]
-1月 11 20:15:21 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
-1月 11 20:15:21 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 12
-1月 11 20:15:21 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
-1月 11 20:15:21 harvester2 bash[2342018]: plots info: plots_n: 93
-1月 11 20:15:21 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
-1月 11 20:20:21 harvester2 bash[2342018]: check drives status....
-1月 11 20:20:21 harvester2 bash[2342018]: status: plotting
-1月 11 20:20:21 harvester2 bash[2342018]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 11 20:20:21 harvester2 bash[2342018]: drive info: [total_gb/used_gb/free_gb] : [16696/16478/217]
-1月 11 20:20:21 harvester2 bash[2342018]: nossd dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/nossd
-1月 11 20:20:21 harvester2 bash[2342018]: nossd info: fpts_n: 77 spts_n: 12
-1月 11 20:20:21 harvester2 bash[2342018]: plots dir: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01/chiapp-files
-1月 11 20:20:21 harvester2 bash[2342018]: plots info: plots_n: 93
-1月 11 20:20:21 harvester2 bash[2342018]: waitting 300 s ,check drives status again....
+1月 12 21:24:42 harvester2 systemd[1]: Started hpool2nossd.
+1月 12 21:24:42 harvester2 bash[2734648]: status: plotting, 41.14%
+1月 12 21:24:42 harvester2 bash[2734648]: drive:  /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 12 21:24:42 harvester2 bash[2734648]: space:     [total/used/free] : [16696/16507/189]
+1月 12 21:24:42 harvester2 bash[2734648]: info:      [plots/fpts/spts] : [81/77/26]
+1月 12 21:24:42 harvester2 bash[2734648]: space_all: [all/comp/uncomp] : [32/1/31]
+1月 12 21:24:42 harvester2 bash[2734648]: info_all : [plots/fpts/spts] : [2559/2235/27]
+1月 12 21:24:42 harvester2 bash[2734648]: waitting 300 s ,check drives status again....
+
 ```
