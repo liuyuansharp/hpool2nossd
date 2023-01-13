@@ -57,8 +57,9 @@ pip3 install subprocess.run
 #下载
 git clone https://github.com/liuyuansharp/hpool2nossd.git
 ```
-- ### 配置hpool2nossd输入"config.yaml"
+- ### 配置hpool2nossd输入
 ```yaml
+# config.yaml
 # 是否fpt文件优先
 fpt_priority: False
 
