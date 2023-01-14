@@ -95,7 +95,9 @@ nossd_tmp_drive_paths:
   - "/srv/dev-disk-by-uuid-9802c526-c5e2-44a4-9e29-b7e1b7b805a0"
   - "/srv/dev-disk-by-uuid-ffeb0e19-8f2a-453a-abec-9aa7884c1124"
   - "/srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01"
-
+  
+# 等待检查间隔(s)
+waitting_time: 300
 ```
 - ### 配置hpool2nossd服务
 

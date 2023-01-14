@@ -12,6 +12,7 @@ import subprocess
 import shutil
 import stat
 from time import sleep
+import datetime
 
 from pathlib import Path
 from typing import Dict
@@ -111,7 +112,12 @@ class hpool2nossd():
         self.all_spts = 0
         self.all_fpts = 0
         self.all_space = 0
-
+        
+        self.all_plots_init = 0
+        self.all_spts_init = 0
+        self.all_fpts_init = 0
+        self.start_time = datetime.datetime.now()
+        
         self.config_yaml = config_yaml
         
     def load_config_yaml(self):
@@ -341,10 +347,6 @@ class hpool2nossd():
                 all_fpts += drive_info.fpts_n
                 all_space += drive_info.total_gb
         
-        self.all_plots_pre = self.all_plots
-        self.all_spts_pre = self.all_spts
-        self.all_fpts_pre = self.all_fpts
-        
         self.all_plots = all_plots
         self.all_spts = all_spts
         self.all_fpts = all_fpts
@@ -352,6 +354,13 @@ class hpool2nossd():
         
         return self.all_dirves
 
+    def save_init_status(self):
+        self.all_plots_init = self.all_plots
+        self.all_spts_init = self.all_spts
+        self.all_fpts_init = self.all_fpts
+        
+        self.init_time = datetime.datetime.now()
+        
     @staticmethod
     def get_type_file_number(dir, type):
         files = os.listdir(dir)
@@ -363,7 +372,9 @@ class hpool2nossd():
         return no
 
     def print_drive_info(self, status, d: DriveInfo) -> None:
-        print("\nstatus: {}, {:.2f}%".format(status,(self.all_space - self.all_plots*101.3)*100/self.all_space))
+        current_time = datetime.datetime.now()
+        
+        print("\nstatus: {}".format(status))
 
         print("drive: {}".format(d.drive_path))
         print(
@@ -371,12 +382,16 @@ class hpool2nossd():
         print(
             "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n,d.fpts_n, d.spts_n))
         
+        percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
+        time = (current_time - self.start_time).seconds / 60
+        print("summary: {:.2f}%  {:.2f} mintues".format(percent,time))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
         print("[all/comp/uncomp]:[{}/{}/{}]".format(all,completed,uncompleted))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_pre,self.all_fpts_pre,self.all_spts_pre))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init,self.all_fpts_init,self.all_spts_init))
         print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots,self.all_fpts,self.all_spts))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init - self.all_plots, self.all_fpts - self.all_fpts_init, self.all_spts - self.all_spts_init))
 
         sys.stdout.flush()
 
@@ -438,7 +453,8 @@ class hpool2nossd():
 
             if self.is_finalizing_drive(drive_info):  # 正在转换fpt
                 self.finalizing_drives[drive] = drive_info
-                
+    
+    def print_running_status(self):
         for d in self.plotting_drives:
             self.print_drive_info("plotting", self.plotting_drives[d])
             
@@ -507,6 +523,12 @@ class hpool2nossd():
         # 更新磁盘状态
         self.get_drives_status()
 
+        # 保存初始状态
+        self.save_init_status()
+        
+        # 输出运行信息
+        self.print_running_status()
+        
         if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
             if not self.is_all_drives_plots_empty():
                 # 重启nossd，更新nossd脚本
@@ -538,7 +560,9 @@ class hpool2nossd():
             self.get_all_dirves()
             # 更新磁盘状态
             self.get_drives_status()
-
+            # 输出运行信息
+            self.print_running_status()
+            
             if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
                 # 再次确认,避免Nossd完成上一张图切换下一张图时进入删图流程
                 sleep(300)
@@ -546,6 +570,9 @@ class hpool2nossd():
                 self.get_all_dirves()
                 # 更新磁盘状态
                 self.get_drives_status()
+                # 输出运行信息
+                self.print_running_status()
+            
                 if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
                     if not self.is_all_drives_plots_empty():
                         # 重启hpool，删除plots
