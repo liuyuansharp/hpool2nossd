@@ -3,13 +3,13 @@
 ## 目录
 -  [**特点**](#特点)
 -  [**简介**](#简介)
--  [**使用方法**](#使用方法)
+-  [**配置方法**](#配置方法)
     -  [获取hpool2nossd](#获取hpool2nossd)
     -  [配置hpool2nossd输入](#配置hpool2nossd输入)
     -  [配置hpool2nossd服务](#配置hpool2nossd服务)
     -  [配置hpool服务](#配置hpool服务)
     -  [配置nossd服务](#配置nossd服务)
--  [**启动并检查服务记录**](#启动并检查服务记录)
+-  [**使用方法**](#使用方法)
     -  [启动并检查hpool记录](#启动并检查hpoolpp记录)
     -  [启动并检查nossd记录](#启动并检查nossd记录)
     -  [启动并检查hpool2nossd记录](#启动并检查hpool2nossd记录)
@@ -20,7 +20,7 @@
 - 可支持自定义每次删除图数量
 - 开机启动，无人值守
 ## 简介
-- 完成Hpool plots 到 Nossd fpt的转换
+- 完成Hpool chia plots 到 Nossd fpts的转换
 - Nossd、Hpool、Hpool2nossd需配置成服务
 - Nossd和Hpool服务调度
     - 初始状态设定
@@ -42,7 +42,7 @@
     - 循环监控重复 `已设定磁盘转换` 
     - 程序退出，当待转换Hpool plots磁盘全部转换完成
 
-## 使用方法
+## 配置方法
 - ### 获取hpool2nossd
 ```bash
 #安装python3
@@ -194,7 +194,7 @@ systemctl daemon-reload
 systemctl enable nossd
 
 ```
-- ## 启动并检查服务记录
+- ## 使用方法
 
 - ### 启动并检查hpoolpp记录
 ```bash
@@ -248,13 +248,14 @@ journalctl -u hpool2nossd.service -f
 ```
 
 ```log
-1月 12 21:24:42 harvester2 systemd[1]: Started hpool2nossd.
-1月 12 21:24:42 harvester2 bash[2734648]: status: plotting, 41.14%
-1月 12 21:24:42 harvester2 bash[2734648]: drive:  /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 12 21:24:42 harvester2 bash[2734648]: space:     [total/used/free] : [16696/16507/189]
-1月 12 21:24:42 harvester2 bash[2734648]: info:      [plots/fpts/spts] : [81/77/26]
-1月 12 21:24:42 harvester2 bash[2734648]: space_all: [all/comp/uncomp] : [32/1/31]
-1月 12 21:24:42 harvester2 bash[2734648]: info_all : [plots/fpts/spts] : [2559/2235/27]
-1月 12 21:24:42 harvester2 bash[2734648]: waitting 300 s ,check drives status again....
-
+1月 14 23:52:19 harvester2 bash[3513905]: status: plotting
+1月 14 23:52:19 harvester2 bash[3513905]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
+1月 14 23:52:19 harvester2 bash[3513905]: [total/used/free]:[16696/16547/148]
+1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[57/77/54]
+1月 14 23:52:19 harvester2 bash[3513905]: summary: 41.70%  0.00 mintues
+1月 14 23:52:19 harvester2 bash[3513905]: [all/comp/uncomp]:[32/5/27]
+1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[2535/2235/55]
+1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[2535/2235/55]
+1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[0/0/0]
+1月 14 23:52:19 harvester2 bash[3513905]: waitting 900 s ,check drives status again....
 ```
