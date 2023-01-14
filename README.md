@@ -20,7 +20,7 @@
 - 可支持自定义每次删除图数量
 - 开机启动，无人值守
 ## 简介
-- 完成Hpool plots 到 Nossd fpt的转换
+- 完成Hpool chia plots 到 Nossd fpts的转换
 - Nossd、Hpool、Hpool2nossd需配置成服务
 - Nossd和Hpool服务调度
     - 初始状态设定
@@ -95,6 +95,9 @@ nossd_tmp_drive_paths:
   - "/srv/dev-disk-by-uuid-9802c526-c5e2-44a4-9e29-b7e1b7b805a0"
   - "/srv/dev-disk-by-uuid-ffeb0e19-8f2a-453a-abec-9aa7884c1124"
   - "/srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01"
+
+# 等待检查间隔(s)
+waitting_time: 300
 
 ```
 - ### 配置hpool2nossd服务
