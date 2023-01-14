@@ -42,7 +42,7 @@
     - 循环监控重复 `已设定磁盘转换` 
     - 程序退出，当待转换Hpool plots磁盘全部转换完成
 
-## 使用方法
+## 配置方法
 - ### 获取hpool2nossd
 ```bash
 #安装python3
@@ -192,7 +192,7 @@ systemctl daemon-reload
 systemctl enable nossd
 
 ```
-- ## 启动并检查服务记录
+- ## 使用方法
 
 - ### 启动并检查hpoolpp记录
 ```bash
