@@ -384,14 +384,22 @@ class hpool2nossd():
         
         percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
         time = (current_time - self.start_time).seconds / 60
-        print("summary: {:.2f}%  {:.2f} mintues".format(percent,time))
+        spts_delta = self.all_spts - self.all_spts_init
+        fpts_delta = self.all_fpts - self.all_fpts_init
+        plots_delta = self.all_plots - self.all_plots_init
+        
+        mintues_per_spt = 0 if time <= 0 else (time / spts_delta)
+        mintues_per_fpt = 0 if time <= 0 else (time / fpts_delta)
+        mintues_per_plot = 0 if time <= 0 else (time / plots_delta)
+
+        print("summary: {:.2f}% {:.2f}m {:.2f}m/s {:.2f}m/f".format(percent,time,mintues_per_spt,mintues_per_fpt))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
         print("[all/comp/uncomp]:[{}/{}/{}]".format(all,completed,uncompleted))
         print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init,self.all_fpts_init,self.all_spts_init))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots,self.all_fpts,self.all_spts))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init - self.all_plots, self.all_fpts - self.all_fpts_init, self.all_spts - self.all_spts_init))
+        print("[plots/fpts/spts]:[{}/{}/{}].".format(self.all_plots,self.all_fpts,self.all_spts))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(plots_delta, fpts_delta, spts_delta))
 
         sys.stdout.flush()
 

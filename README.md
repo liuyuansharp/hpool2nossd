@@ -248,14 +248,14 @@ journalctl -u hpool2nossd.service -f
 ```
 
 ```log
-1月 14 23:52:19 harvester2 bash[3513905]: status: plotting
-1月 14 23:52:19 harvester2 bash[3513905]: drive: /srv/dev-disk-by-uuid-0ee42af9-6cc1-41a3-992c-c7a80a764b01
-1月 14 23:52:19 harvester2 bash[3513905]: [total/used/free]:[16696/16547/148]
-1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[57/77/54]
-1月 14 23:52:19 harvester2 bash[3513905]: summary: 41.70%  0.00 mintues
-1月 14 23:52:19 harvester2 bash[3513905]: [all/comp/uncomp]:[32/5/27]
-1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[2535/2235/55]
-1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[2535/2235/55]
-1月 14 23:52:19 harvester2 bash[3513905]: [plots/fpts/spts]:[0/0/0]
-1月 14 23:52:19 harvester2 bash[3513905]: waitting 900 s ,check drives status again....
+1月 15 10:11:52 harvester2 bash[3679186]: status: plotting
+1月 15 10:11:52 harvester2 bash[3679186]: drive: /srv/dev-disk-by-label-16T3
+1月 15 10:11:52 harvester2 bash[3679186]: [total/used/free]:[14783/14589/194]
+1月 15 10:11:52 harvester2 bash[3679186]: [plots/fpts/spts]:[143/0/1]
+1月 15 10:11:52 harvester2 bash[3679186]: summary: 41.93% 0.00m 0.00m/s 0.00m/f
+1月 15 10:11:52 harvester2 bash[3679186]: [all/comp/uncomp]:[32/5/27]
+1月 15 10:11:52 harvester2 bash[3679186]: [plots/fpts/spts]:[2525/2235/61]
+1月 15 10:11:52 harvester2 bash[3679186]: [plots/fpts/spts]:[2525/2235/61].
+1月 15 10:11:52 harvester2 bash[3679186]: [plots/fpts/spts]:[0/0/0]
+1月 15 10:11:52 harvester2 bash[3679186]: waitting 300 s ,check drives status again....
 ```
