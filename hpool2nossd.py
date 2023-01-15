@@ -388,9 +388,9 @@ class hpool2nossd():
         fpts_delta = self.all_fpts - self.all_fpts_init
         plots_delta = self.all_plots - self.all_plots_init
         
-        mintues_per_spt = 0 if time <= 0 else (time / spts_delta)
-        mintues_per_fpt = 0 if time <= 0 else (time / fpts_delta)
-        mintues_per_plot = 0 if time <= 0 else (time / plots_delta)
+        mintues_per_spt = 0 if (time <= 0 or spts_delta <=0) else (time / spts_delta)
+        mintues_per_fpt = 0 if (time <= 0 or fpts_delta <=0) else (time / fpts_delta)
+        mintues_per_plot = 0 if (time <= 0 or plots_delta <=0) else (time / plots_delta)
 
         print("summary: {:.2f}% {:.2f}m {:.2f}m/s {:.2f}m/f".format(percent,time,mintues_per_spt,mintues_per_fpt))
         all = len(self.all_dirves)
