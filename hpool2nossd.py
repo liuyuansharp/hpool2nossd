@@ -383,7 +383,7 @@ class hpool2nossd():
             "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n,d.fpts_n, d.spts_n))
         
         percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
-        time = (current_time - self.start_time).seconds / 60
+        time = (current_time - self.start_time).days
         spts_delta = self.all_spts - self.all_spts_init
         fpts_delta = self.all_fpts - self.all_fpts_init
         plots_delta = self.all_plots - self.all_plots_init
