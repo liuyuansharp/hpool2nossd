@@ -392,7 +392,7 @@ class hpool2nossd():
         mintues_per_fpt = 0 if (time <= 0 or fpts_delta <=0) else (time / fpts_delta)
         mintues_per_plot = 0 if (time <= 0 or plots_delta <=0) else (time / plots_delta)
 
-        print("summary: {:.2f}% {:.2f}m {:.1f}m/f {:.1f}m/s".format(percent,time,mintues_per_fpt,mintues_per_spt))
+        print("summary: {:.2f}% {:.2f}d {:.1f}d/f {:.1f}d/s".format(percent,time,mintues_per_fpt,mintues_per_spt))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
