@@ -49,7 +49,7 @@ class hpool2nossd():
         ################### 配置区域开始###################
         # 是否fpt文件优先
         self.fpt_priority = False
-        # 每次删除hpool图数量
+        # 每次删除图数量
         self.delete_plots_num_per_time = 2
 
         # 磁盘挂载根目录
@@ -57,12 +57,12 @@ class hpool2nossd():
         # 磁盘文件夹标识（用于排除磁盘挂载根目录下排除无效目录，可为填""，则不作排除）
         self.drive_character = "disk"
 
-        # hpool图目录名
-        self.plots_dir = "chiapp-files"
+        # chia图目录名
+        self.plots_dir = "chiapp-files" # 如果为空"",则不删图
         # nossd图目录名
         self.nossd_dir = "nossd"
         # hpool服务名
-        self.hpool_service = "hpoolpp"
+        self.hpool_service = "hpoolpp" # 如果为空"",则删图前不考虑hpool独占
         # nossd服务名
         self.nossd_service = "nossd"
 
@@ -246,6 +246,9 @@ class hpool2nossd():
 
     def set_hpool_service(self, cmd):
         
+        if self.hpool_service == "":
+            return False
+        
         service_cmd = "service {} {}".format(self.hpool_service, cmd)
         print(service_cmd)
         
@@ -263,6 +266,9 @@ class hpool2nossd():
         return False
 
     def set_nossd_service(self, cmd):
+        
+        if self.nossd_service == "":
+            return False
         
         service_cmd = "service {} {}".format(self.nossd_service, cmd)
         print(service_cmd)
@@ -555,10 +561,10 @@ class hpool2nossd():
         
         if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
             if not self.is_all_drives_plots_empty():
-                # 重启nossd，更新nossd脚本
-                if self.set_nossd_service("stop"):
-                    self.update_nossd_start_sh(self.fpt_priority)
-                    self.set_nossd_service("start")
+                # 启动nossd，初始化nossd脚本
+                self.set_nossd_service("stop")
+                self.update_nossd_start_sh(self.fpt_priority)
+                self.set_nossd_service("start")
             else:
                 if not self.fpt_priority:
                     print("spts -> fpts....\n")
@@ -612,7 +618,7 @@ class hpool2nossd():
                         if not self.fpt_priority:
                             print("spts -> fpts....\n")
                             # 重启nossd，更新nossd脚本
-                            if self.set_nossd_service("stop"):
+                            if  self.set_nossd_service("stop"):
                                 self.update_nossd_start_sh(True)
                                 self.set_nossd_service("start")
                         else:
