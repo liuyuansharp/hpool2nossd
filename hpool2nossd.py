@@ -176,6 +176,7 @@ class hpool2nossd():
                 self.waitting_time = data["waitting_time"]        
                 
     def reduce_plots(self):
+        print("\nreduce_plots\n")
         deleted_num = 0
         need_to_delete_num = self.delete_plots_num_per_time
 
@@ -244,28 +245,36 @@ class hpool2nossd():
         return False
 
     def set_hpool_service(self, cmd):
-        p = subprocess.Popen("service {} {}".format(self.hpool_service, cmd),
+        
+        service_cmd = "service {} {}".format(self.hpool_service, cmd)
+        print(service_cmd)
+        
+        p = subprocess.Popen(service_cmd,
                              shell=True,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              encoding='utf-8'
                              )
         p.wait()
-
+        
         if p.returncode == 0:
             return True
 
         return False
 
     def set_nossd_service(self, cmd):
-        p = subprocess.Popen("service {} {}".format(self.nossd_service, cmd),
+        
+        service_cmd = "service {} {}".format(self.nossd_service, cmd)
+        print(service_cmd)
+
+        p = subprocess.Popen(service_cmd,
                              shell=True,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              encoding='utf-8'
                              )
         p.wait()
-
+        
         if p.returncode == 0:
             return True
 
@@ -475,6 +484,8 @@ class hpool2nossd():
             self.print_drive_info("finalizing", self.finalizing_drives[d])
             
     def update_nossd_start_sh(self, fpt_priority):
+        print("\nupdate_nossd_start_sh\n")
+        
         start_sh_context = '#!/usr/bin/env bash \n'\
                            'cd \"$(dirname \"$(realpath \"${BASH_SOURCE[0]:-$0}\")\")\"\n'
         start_sh_context += str(self.nossd_client) + " \\" + "\n"
