@@ -30,6 +30,7 @@ class DriveInfo():
         self.target_use_space = 0
         self.target_fpts_n = 0
         self.target_spts_n = 0
+        self.target_n = 0
 
         self.plots_path: Path = Path()
         self.plots_n = 0
@@ -309,8 +310,13 @@ class hpool2nossd():
 
         if nossd_space > 0:
             d.target_use_space = int(nossd_space)
-            d.target_spts_n = fpts_n + int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
-            d.target_fpts_n = spts_n + int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
+            if self.fpt_priority:
+                d.target_n = spts_n + int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
+            else:
+                d.target_n = fpts_n + int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
+                
+            d.target_spts_n = int(nossd_space // self.spt_space)
+            d.target_fpts_n = int(nossd_space // self.fpt_space)
         plots_path = drive_path / self.plots_dir
         plots_n = 0
         if plots_path.exists():
@@ -501,10 +507,10 @@ class hpool2nossd():
 
             if fpt_priority:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,sf {} \\".format(
-                    drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+                    drive_info.target_use_space, drive_info.target_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,s {} \\".format(
-                    drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
+                    drive_info.target_use_space, drive_info.target_n, nossd_dir) + "\n"
 
         for d in self.readonly_drives:
             drive_info = self.readonly_drives[d]
