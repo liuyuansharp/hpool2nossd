@@ -510,10 +510,10 @@ class hpool2nossd():
 
             if fpt_priority:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,tsf {} \\".format(
-                    drive_info.target_use_space, drive_info.target_fpts_n, nossd_dir) + "\n"
+                    drive_info.target_use_space, drive_info.target_n, nossd_dir) + "\n"
             else:
                 start_sh_context += "	 -d,{:d}GB,{:d}N,ts {} \\".format(
-                    drive_info.target_use_space, drive_info.target_spts_n, nossd_dir) + "\n"
+                    drive_info.target_use_space, drive_info.target_n, nossd_dir) + "\n"
 
         for d in self.spt_or_fpt_drives:
             drive_info = self.spt_or_fpt_drives[d]
