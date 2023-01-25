@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Dict
 from ruamel.yaml import YAML
 
+
 class DriveInfo():
     def __init__(self) -> None:
         self.drive_path: Path = Path()
@@ -41,10 +42,11 @@ class DriveInfo():
 
         self.plotting_flag = False
         self.finalizing_flag = False
+        self.progress = ""
 
 
 class hpool2nossd():
-    def __init__(self,config_yaml) -> None:
+    def __init__(self, config_yaml) -> None:
 
         ################### 配置区域开始###################
         # 是否fpt文件优先
@@ -58,11 +60,11 @@ class hpool2nossd():
         self.drive_character = "disk"
 
         # chia图目录名
-        self.plots_dir = "chiapp-files" # 如果为空"",则不删图
+        self.plots_dir = "chiapp-files"  # 如果为空"",则不删图
         # nossd图目录名
         self.nossd_dir = "nossd"
         # hpool服务名
-        self.hpool_service = "hpoolpp" # 如果为空"",则删图前不考虑hpool独占
+        self.hpool_service = "hpoolpp"  # 如果为空"",则删图前不考虑hpool独占
         # nossd服务名
         self.nossd_service = "nossd"
 
@@ -113,68 +115,68 @@ class hpool2nossd():
         self.all_spts = 0
         self.all_fpts = 0
         self.all_space = 0
-        
+
         self.all_plots_init = 0
         self.all_spts_init = 0
         self.all_fpts_init = 0
         self.start_time = datetime.datetime.now()
-        
+
         self.config_yaml = config_yaml
-        
+
     def load_config_yaml(self):
         yaml = YAML(typ='safe')
         with open(self.config_yaml, encoding='utf-8') as file:
             data = yaml.load(file)
             if "fpt_priority" in data:
                 self.fpt_priority = data["fpt_priority"]
-            
+
             if "delete_plots_num_per_time" in data:
                 self.delete_plots_num_per_time = data["delete_plots_num_per_time"]
-                
+
             if "drive_root_path" in data:
                 self.drive_root_path = Path(data["drive_root_path"])
-                
+
             if "drive_character" in data:
                 self.drive_character = data["drive_character"]
-                
+
             if "plots_dir" in data:
                 self.plots_dir = data["plots_dir"]
-                
+
             if "nossd_dir" in data:
                 self.nossd_dir = data["nossd_dir"]
-                
+
             if "hpool_service" in data:
                 self.hpool_service = data["hpool_service"]
-                
+
             if "nossd_service" in data:
                 self.nossd_service = data["nossd_service"]
-                
+
             if "nossd_path" in data:
                 self.nossd_path = Path(data["nossd_path"])
                 self.nossd_client = self.nossd_path / "client"
-                
+
             if "nossd_start_sh" in data:
                 self.nossd_start_sh_name = data["nossd_start_sh"]
                 self.nossd_start_sh = self.nossd_path / self.nossd_start_sh_name
-                
+
             if "nossd_type" in data:
                 self.nossd_type = data["nossd_type"]
-                
+
             if "nossd_name" in data:
                 self.nossd_name = data["nossd_name"]
-                
+
             if "nossd_address" in data:
                 self.nossd_address = data["nossd_address"]
-                
+
             if "nossd_tmp_drive_paths" in data:
                 self.nossd_tmp_drive_paths = data["nossd_tmp_drive_paths"]
-                
+
             if "nossd_service" in data:
-                self.nossd_service = data["nossd_service"]    
-                
+                self.nossd_service = data["nossd_service"]
+
             if "waitting_time" in data:
-                self.waitting_time = data["waitting_time"]        
-                
+                self.waitting_time = data["waitting_time"]
+
     def reduce_plots(self):
         print("\nreduce_plots\n")
         deleted_num = 0
@@ -245,13 +247,13 @@ class hpool2nossd():
         return False
 
     def set_hpool_service(self, cmd):
-        
+
         if self.hpool_service == "":
             return False
-        
+
         service_cmd = "service {} {}".format(self.hpool_service, cmd)
         print(service_cmd)
-        
+
         p = subprocess.Popen(service_cmd,
                              shell=True,
                              stdout=subprocess.PIPE,
@@ -259,17 +261,17 @@ class hpool2nossd():
                              encoding='utf-8'
                              )
         p.wait()
-        
+
         if p.returncode == 0:
             return True
 
         return False
 
     def set_nossd_service(self, cmd):
-        
+
         if self.nossd_service == "":
             return False
-        
+
         service_cmd = "service {} {}".format(self.nossd_service, cmd)
         print(service_cmd)
 
@@ -280,11 +282,30 @@ class hpool2nossd():
                              encoding='utf-8'
                              )
         p.wait()
-        
+
         if p.returncode == 0:
             return True
 
         return False
+
+    @staticmethod
+    def get_nossd_progress():
+        progress = 0
+        p = subprocess.Popen("service nossd status",
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             encoding='utf-8'
+                             )
+        p.wait()
+
+        if p.returncode == 0:
+            lines = p.stdout.readlines()
+            for line in lines:
+                if "Plotting" in line or "Finalizing" in line:
+                    progress = line.split(',')[1].strip()
+
+        return progress
 
     def get_drive_info(self, drive_path: Path) -> DriveInfo:
 
@@ -309,9 +330,11 @@ class hpool2nossd():
 
             if plotting_n:
                 d.plotting_flag = True
+                d.progress = self.get_nossd_progress()
 
             if finalizing_n:
                 d.finalizing_flag = True
+                d.progress = self.get_nossd_progress()
 
         d.nossd_path = nossd_path
         d.fpts_n = fpts_n
@@ -326,10 +349,12 @@ class hpool2nossd():
         if nossd_space > 0:
             d.target_use_space = int(nossd_space)
             if self.fpt_priority:
-                d.target_n = spts_n + int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
+                d.target_n = spts_n + \
+                    int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
             else:
-                d.target_n = fpts_n + int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
-                
+                d.target_n = fpts_n + \
+                    int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
+
             d.target_spts_n = int(nossd_space // self.spt_space)
             d.target_fpts_n = int(nossd_space // self.fpt_space)
         plots_path = drive_path / self.plots_dir
@@ -344,7 +369,7 @@ class hpool2nossd():
 
     def get_all_dirves(self):
         dirs = os.listdir(self.drive_root_path)
-        
+
         all_plots = 0
         all_spts = 0
         all_fpts = 0
@@ -366,21 +391,21 @@ class hpool2nossd():
                 all_spts += drive_info.spts_n
                 all_fpts += drive_info.fpts_n
                 all_space += drive_info.total_gb
-        
+
         self.all_plots = all_plots
         self.all_spts = all_spts
         self.all_fpts = all_fpts
         self.all_space = all_space
-        
+
         return self.all_dirves
 
     def save_init_status(self):
         self.all_plots_init = self.all_plots
         self.all_spts_init = self.all_spts
         self.all_fpts_init = self.all_fpts
-        
+
         self.init_time = datetime.datetime.now()
-        
+
     @staticmethod
     def get_type_file_number(dir, type):
         files = os.listdir(dir)
@@ -393,33 +418,41 @@ class hpool2nossd():
 
     def print_drive_info(self, status, d: DriveInfo) -> None:
         current_time = datetime.datetime.now()
-        
-        print("\nstatus: {}".format(status))
+
+        print("\nstatus: {} {}".format(status, d.progress))
 
         print("drive: {}".format(d.drive_path))
         print(
             "[total/used/free]:[{}/{}/{}]".format(d.total_gb, d.used_gb, d.free_gb))
         print(
-            "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n,d.fpts_n, d.spts_n))
-        
+            "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n, d.fpts_n, d.spts_n))
+
         percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
-        time = (current_time - self.start_time).days
+        
+        time = (current_time - self.start_time).seconds / 60 / 60 #hours
         spts_delta = self.all_spts - self.all_spts_init
         fpts_delta = self.all_fpts - self.all_fpts_init
         plots_delta = self.all_plots - self.all_plots_init
-        
-        days_per_spt = 0 if (time <= 0 or spts_delta <=0) else (spts_delta / time)
-        days_per_fpt = 0 if (time <= 0 or fpts_delta <=0) else (fpts_delta / time)
-        days_per_plot = 0 if (time <= 0 or plots_delta <=0) else (plots_delta / time)
 
-        print("summary: {:.2f}% {:d}d {:.1f}f/d {:.1f}s/d {:.1f}p/d".format(percent,time,days_per_fpt,days_per_spt,days_per_plot))
+        spt_per_time = 0 if (time <= 0 or spts_delta <=
+                             0) else (spts_delta / time)
+        fpt_per_time = 0 if (time <= 0 or fpts_delta <=
+                             0) else (fpts_delta / time)
+        plot_per_time = 0 if (time <= 0 or plots_delta <=
+                              0) else (plots_delta / time)
+
+        print("summary: {:.2f}% {:.1f}h {:.1f}f/h {:.1f}s/h {:.1f}p/h".format(
+            percent, time, fpt_per_time, spt_per_time, plot_per_time))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
-        print("[all/comp/uncomp]:[{}/{}/{}]".format(all,completed,uncompleted))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init,self.all_fpts_init,self.all_spts_init))
-        print("[plots/fpts/spts]:[{}/{}/{}].".format(self.all_plots,self.all_fpts,self.all_spts))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(plots_delta, fpts_delta, spts_delta))
+        print("[all/comp/uncomp]:[{}/{}/{}]".format(all, completed, uncompleted))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init,
+              self.all_fpts_init, self.all_spts_init))
+        print("[plots/fpts/spts]:[{}/{}/{}].".format(self.all_plots,
+              self.all_fpts, self.all_spts))
+        print("[plots/fpts/spts]:[{}/{}/{}]".format(plots_delta,
+              fpts_delta, spts_delta))
 
         sys.stdout.flush()
 
@@ -481,17 +514,17 @@ class hpool2nossd():
 
             if self.is_finalizing_drive(drive_info):  # 正在转换fpt
                 self.finalizing_drives[drive] = drive_info
-    
+
     def print_running_status(self):
         for d in self.plotting_drives:
             self.print_drive_info("plotting", self.plotting_drives[d])
-            
+
         for d in self.finalizing_drives:
             self.print_drive_info("finalizing", self.finalizing_drives[d])
-            
+
     def update_nossd_start_sh(self, fpt_priority):
         print("\nupdate_nossd_start_sh\n")
-        
+
         start_sh_context = '#!/usr/bin/env bash \n'\
                            'cd \"$(dirname \"$(realpath \"${BASH_SOURCE[0]:-$0}\")\")\"\n'
         start_sh_context += str(self.nossd_client) + " \\" + "\n"
@@ -545,9 +578,9 @@ class hpool2nossd():
             os.chmod(self.nossd_start_sh, stat.S_IRWXU)
 
     def run(self):
-        
+
         self.load_config_yaml()
-        
+
         # 获取初始磁盘信息
         self.get_all_dirves()
         # 更新磁盘状态
@@ -555,10 +588,10 @@ class hpool2nossd():
 
         # 保存初始状态
         self.save_init_status()
-        
+
         # 输出运行信息
         self.print_running_status()
-        
+
         if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
             if not self.is_all_drives_plots_empty():
                 # 启动nossd，初始化nossd脚本
@@ -592,7 +625,7 @@ class hpool2nossd():
             self.get_drives_status()
             # 输出运行信息
             self.print_running_status()
-            
+
             if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
                 # 再次确认,避免Nossd完成上一张图切换下一张图时进入删图流程
                 sleep(300)
@@ -602,7 +635,7 @@ class hpool2nossd():
                 self.get_drives_status()
                 # 输出运行信息
                 self.print_running_status()
-            
+
                 if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
                     if not self.is_all_drives_plots_empty():
                         # 重启hpool，删除plots
@@ -618,7 +651,7 @@ class hpool2nossd():
                         if not self.fpt_priority:
                             print("spts -> fpts....\n")
                             # 重启nossd，更新nossd脚本
-                            if  self.set_nossd_service("stop"):
+                            if self.set_nossd_service("stop"):
                                 self.update_nossd_start_sh(True)
                                 self.set_nossd_service("start")
                         else:
