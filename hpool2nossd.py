@@ -411,7 +411,7 @@ class hpool2nossd():
         files = os.listdir(dir)
         no = 0
         for file in files:
-            if type in file:
+            if type == ('.' + file.split('.')[-1]):
                 no += 1
 
         return no
