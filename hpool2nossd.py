@@ -348,15 +348,16 @@ class hpool2nossd():
 
         if nossd_space > 0:
             d.target_use_space = int(nossd_space)
-            if self.fpt_priority:
-                d.target_n = spts_n + \
-                    int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
-            else:
-                d.target_n = fpts_n + \
-                    int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
+            #if self.fpt_priority:
+            #    d.target_n = spts_n + \
+            #        int((nossd_space - spts_n * self.spt_space) // self.fpt_space)
+            #else:
+            #    d.target_n = fpts_n + \
+            #        int((nossd_space - fpts_n * self.fpt_space) // self.spt_space)
 
             d.target_spts_n = int(nossd_space // self.spt_space)
             d.target_fpts_n = int(nossd_space // self.fpt_space)
+            d.target_n = d.target_fpts_n
         plots_path = drive_path / self.plots_dir
         plots_n = 0
         if plots_path.exists():
