@@ -185,17 +185,18 @@ class hpool2nossd():
         for d in self.tmp_spt_or_fpt_drives:
             drive_info = self.tmp_spt_or_fpt_drives[d]
 
-            n = 1
+            n = 0
             if drive_info.plots_n >= need_to_delete_num:
                 n = need_to_delete_num
             else:
                 n = drive_info.plots_n
 
-            self.delete_plots(drive_info.plots_path, n)
-            deleted_num += n
-            need_to_delete_num -= n
-            drive_info.plots_n -= n
-            self.print_drive_info("deleted", drive_info)
+            if n > 0:
+                self.delete_plots(drive_info.plots_path, n)
+                deleted_num += n
+                need_to_delete_num -= n
+                drive_info.plots_n -= n
+                self.print_drive_info("deleted", drive_info)
 
             if need_to_delete_num == 0:
                 return
@@ -203,23 +204,27 @@ class hpool2nossd():
         for d in self.spt_or_fpt_drives:
             drive_info = self.spt_or_fpt_drives[d]
 
-            n = 1
+            n = 0
             if drive_info.plots_n >= need_to_delete_num:
                 n = need_to_delete_num
             else:
                 n = drive_info.plots_n
 
-            self.delete_plots(drive_info.plots_path, n)
-            deleted_num += n
-            need_to_delete_num -= n
-            drive_info.plots_n -= n
-            self.print_drive_info("deleted", drive_info)
+            if n > 0:
+                self.delete_plots(drive_info.plots_path, n)
+                deleted_num += n
+                need_to_delete_num -= n
+                drive_info.plots_n -= n
+                self.print_drive_info("deleted", drive_info)
 
             if need_to_delete_num == 0:
                 return
 
     @staticmethod
     def delete_plots(plots_path: Path, n: int):
+        if n <= 0:
+            return
+
         count = 1
         if plots_path.exists():
             plots = os.listdir(plots_path)
