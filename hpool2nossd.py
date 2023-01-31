@@ -348,8 +348,8 @@ class hpool2nossd():
         nossd_space = d.total_gb
         if str(drive_path) in self.nossd_tmp_drive_paths:
             d.tmp_drive_flag = True
-            nossd_space -= self.total_tmp_space / \
-                len(self.nossd_tmp_drive_paths)
+            # nossd_space -= self.total_tmp_space / \
+            #     len(self.nossd_tmp_drive_paths)
 
         if nossd_space > 0:
             d.target_use_space = int(nossd_space)
