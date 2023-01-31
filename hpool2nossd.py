@@ -435,7 +435,7 @@ class hpool2nossd():
 
         percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
         
-        time = (current_time - self.start_time).seconds / 60 / 60 #hours
+        time = (current_time - self.start_time).total_seconds() / 60 / 60 #hours
         spts_delta = self.all_spts - self.all_spts_init
         fpts_delta = self.all_fpts - self.all_fpts_init
         plots_delta = self.all_plots - self.all_plots_init
@@ -647,7 +647,7 @@ class hpool2nossd():
                 self.print_running_status()
                 
                 if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
-                    print("farming status...!\n")
+                    print("only farming...!\n")
                     if not self.is_all_drives_plots_empty():
                         # 重启hpool，删除plots
                         self.set_hpool_service("stop")
