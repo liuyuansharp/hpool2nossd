@@ -619,7 +619,7 @@ class hpool2nossd():
             print("waitting {} s ,check drives status again....\n".format(
                 self.waitting_time))
             sys.stdout.flush()
-            sleep(self.waitting_time)  # 5 min
+            sleep(self.waitting_time)
 
             # 更新磁盘状态
             print("check drives status....\n")
@@ -633,16 +633,21 @@ class hpool2nossd():
             self.print_running_status()
 
             if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
+                #再次确认
+                print("check farming status....\n")
+                
                 # 再次确认,避免Nossd完成上一张图切换下一张图时进入删图流程
-                sleep(300)
+                sleep(self.waitting_time * 2)
+                
                 # 更新磁盘信息
                 self.get_all_dirves()
                 # 更新磁盘状态
                 self.get_drives_status()
                 # 输出运行信息
                 self.print_running_status()
-
+                
                 if len(self.plotting_drives) == 0 and len(self.finalizing_drives) == 0:
+                    print("farming status...!\n")
                     if not self.is_all_drives_plots_empty():
                         # 重启hpool，删除plots
                         self.set_hpool_service("stop")
