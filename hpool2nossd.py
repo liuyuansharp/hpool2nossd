@@ -431,7 +431,7 @@ class hpool2nossd():
         print(
             "[total/used/free]:[{}/{}/{}]".format(d.total_gb, d.used_gb, d.free_gb))
         print(
-            "[plots/fpts/spts]:[{}/{}/{}]".format(d.plots_n, d.fpts_n, d.spts_n))
+            "[plots/spts/fpts]:[{}/{}/{}]".format(d.plots_n, d.spts_n, d.fpts_n))
 
         percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
         
@@ -444,18 +444,18 @@ class hpool2nossd():
         fpt_per_time = 0 if time <= 0 else (fpts_delta / time)
         plot_per_time = 0 if time <= 0 else (plots_delta / time)
 
-        print("summary: {:.2f}% {:.1f}h {:.1f}f/h {:.1f}s/h {:.1f}p/h".format(
-            percent, time, fpt_per_time, spt_per_time, plot_per_time))
+        print("summary: {:.2f}% {:.1f}h {:.1f}p/h {:.1f}s/h {:.1f}f/h".format(
+            percent, time, plot_per_time, spt_per_time, fpt_per_time))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
         print("[all/comp/uncomp]:[{}/{}/{}]".format(all, completed, uncompleted))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(self.all_plots_init,
-              self.all_fpts_init, self.all_spts_init))
-        print("[plots/fpts/spts]:[{}/{}/{}].".format(self.all_plots,
-              self.all_fpts, self.all_spts))
-        print("[plots/fpts/spts]:[{}/{}/{}]".format(plots_delta,
-              fpts_delta, spts_delta))
+        print("[plots/spts/fpts]:[{}/{}/{}]".format(self.all_plots_init,
+              self.all_spts_init, self.all_fpts_init))
+        print("[plots/spts/fpts]:[{}/{}/{}].".format(self.all_plots,
+              self.all_spts, self.all_fpts))
+        print("[plots/spts/fpts]:[{}/{}/{}]".format(plots_delta,
+              spts_delta, fpts_delta))
 
         sys.stdout.flush()
 
