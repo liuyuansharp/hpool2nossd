@@ -1,5 +1,5 @@
 # 是否fpt文件优先
-fpt_priority: False
+fpt_priority: True
 
 # 每次删除图数量
 delete_plots_num_per_time: 2
