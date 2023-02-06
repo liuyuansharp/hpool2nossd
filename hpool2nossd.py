@@ -115,11 +115,13 @@ class hpool2nossd():
         self.all_spts = 0
         self.all_fpts = 0
         self.all_space = 0
-
+        self.percent = 0
+        
         self.all_plots_init = 0
         self.all_spts_init = 0
         self.all_fpts_init = 0
         self.start_time = datetime.datetime.now()
+        self.percent_init = 0
 
         self.config_yaml = config_yaml
 
@@ -403,13 +405,16 @@ class hpool2nossd():
         self.all_fpts = all_fpts
         self.all_space = all_space
 
+        self.percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
+
         return self.all_dirves
 
     def save_init_status(self):
         self.all_plots_init = self.all_plots
         self.all_spts_init = self.all_spts
         self.all_fpts_init = self.all_fpts
-
+        self.percent_init = self.percent
+        
         self.init_time = datetime.datetime.now()
 
     @staticmethod
@@ -433,8 +438,6 @@ class hpool2nossd():
         print(
             "[plots/spts/fpts]:[{}/{}/{}]".format(d.plots_n, d.spts_n, d.fpts_n))
 
-        percent = (self.all_space - self.all_plots*101.3)*100/self.all_space
-        
         time = (current_time - self.start_time).total_seconds() / 60 / 60 #hours
         spts_delta = self.all_spts - self.all_spts_init
         fpts_delta = self.all_fpts - self.all_fpts_init
@@ -444,8 +447,10 @@ class hpool2nossd():
         fpt_per_time = 0 if time <= 0 else (fpts_delta / time)
         plot_per_time = 0 if time <= 0 else (plots_delta / time)
 
-        print("summary: {:.2f}% {:.1f}h {:.1f}p/h {:.1f}s/h {:.1f}f/h".format(
-            percent, time, plot_per_time, spt_per_time, fpt_per_time))
+        prediction_time = 0 if self.percent == self.percent_init else time * (100 - self.percent) / (self.percent - self.percent_init) / 24
+        
+        print("summary: {:.2f}% {:.1f}d -{:.1f}d {:.1f}p/h {:.1f}s/h {:.1f}f/h".format(
+            self.percent, time / 24, prediction_time, plot_per_time, spt_per_time, fpt_per_time))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
