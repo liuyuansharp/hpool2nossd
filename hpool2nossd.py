@@ -447,10 +447,10 @@ class hpool2nossd():
         fpt_per_time = 0 if time <= 0 else (fpts_delta / time)
         plot_per_time = 0 if time <= 0 else (plots_delta / time)
 
-        prediction_time = 0 if self.percent == self.percent_init else time * (100 - self.percent) / (self.percent - self.percent_init) / 24
+        prediction_time = 0 if self.percent == self.percent_init else time * (100 - self.percent) / (self.percent - self.percent_init)
         
         print("summary: {:.2f}% {:.1f}d -{:.1f}d {:.1f}p/h {:.1f}s/h {:.1f}f/h".format(
-            self.percent, time / 24, prediction_time, plot_per_time, spt_per_time, fpt_per_time))
+            self.percent, time / 24, prediction_time / 24, plot_per_time, spt_per_time, fpt_per_time))
         all = len(self.all_dirves)
         completed = len(self.readonly_drives)
         uncompleted = len(self.all_dirves) - len(self.readonly_drives)
